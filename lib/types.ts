@@ -56,7 +56,7 @@ export type UserLaunch = {
 
 export type LaunchWithScore = Launch & { fomo_score?: number; status?: string };
 
-export const ROLES = ['Product Manager', 'Founder / CEO', 'Engineer', 'Designer', 'ML Researcher', 'Marketer', 'Student', 'Curious'] as const;
+export const ROLES = ['Product Manager', 'Founder / CEO', 'Engineer', 'Designer', 'ML Researcher', 'Marketer', 'Finance Professional', 'Investor / VC', 'Student', 'Curious'] as const;
 export const INDUSTRIES = ['SaaS', 'Fintech', 'Design', 'Healthcare', 'E-commerce', 'Education', 'AI / ML', 'Other'] as const;
 export const DEPTHS = ['Beginner', 'Intermediate', 'Advanced', 'Expert'] as const;
 export const INTERESTS = ['AI Coding', 'Agents', 'Video AI', 'Voice AI', 'Image AI', 'Infra / MCP', 'Productivity', 'Search', 'Open Source'] as const;
