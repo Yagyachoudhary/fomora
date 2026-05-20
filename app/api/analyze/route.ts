@@ -33,18 +33,41 @@ export async function POST(req: Request) {
       );
     }
 
-    // Get the launch text — either fetched from the URL or pasted directly.
+    // Get the launch text. Priority:
+    //   1. A known launch already in the DB (use its stored description/content)
+    //   2. Live-fetched page content
+    //   3. Pasted text
+    //   4. Name + URL only (let the model reason from its own knowledge)
     let launchName = "Pasted text";
     let launchText = text ?? "";
+
     if (url) {
-      const fetched = await fetchLaunchContent(url);
-      launchName = fetched.name;
-      launchText = fetched.text || text || "";
+      // 1. Is this a launch we already know about?
+      const { data: known } = await supabase
+        .from("launches")
+        .select("name, description, raw_content")
+        .eq("url", url)
+        .maybeSingle();
+
+      if (known && (known.raw_content || known.description)) {
+        launchName = known.name;
+        launchText = [known.name, known.description, known.raw_content].filter(Boolean).join(". ");
+      } else {
+        // 2. Try to fetch the page
+        const fetched = await fetchLaunchContent(url);
+        launchName = fetched.name !== "Unknown" ? fetched.name : launchName;
+        launchText = fetched.text || text || "";
+
+        // 4. If the page was unscrapeable, let the model reason from name + url.
+        if (launchText.length < 40) {
+          launchText = `${launchName}. An AI product/announcement at ${url}. The page could not be fully scraped — evaluate based on the product name and what is publicly known about it.`;
+        }
+      }
     }
 
-    if (!launchText || launchText.length < 50) {
+    if (!launchText || launchText.length < 20) {
       return NextResponse.json(
-        { error: "Couldn't extract enough content. Paste the announcement text directly." },
+        { error: "Couldn't read that. Paste the announcement text directly instead of a URL." },
         { status: 422 }
       );
     }
