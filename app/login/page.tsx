@@ -42,8 +42,9 @@ export default function LoginPage() {
   async function verifyCode(e: React.FormEvent) {
     e.preventDefault();
     const token = code.replace(/\s/g, "");
+    // Supabase OTP length is configurable (commonly 6 or 8) — accept either.
     if (token.length < 6) {
-      setErr("Enter the 6-digit code from your email.");
+      setErr("Enter the full code from your email.");
       return;
     }
     setBusy(true);
@@ -57,7 +58,11 @@ export default function LoginPage() {
 
     if (error) {
       setBusy(false);
-      setErr(error.message.includes("expired") ? "That code expired. Request a new one." : error.message);
+      setErr(
+        error.message.toLowerCase().includes("expired")
+          ? "That code didn't work — it may have expired. Request a new one."
+          : "That code wasn't accepted. Double-check every digit, or request a new one."
+      );
       return;
     }
 
@@ -84,7 +89,7 @@ export default function LoginPage() {
             <h1 className="serif text-5xl font-black mt-6 text-center leading-none">Hi, I&apos;m Fomora.</h1>
             <p className="text-ink-soft text-center mt-4 text-base leading-relaxed">
               I&apos;ll tell you which AI launches actually matter to <strong>you</strong>.<br />
-              Enter your email and I&apos;ll send you a 6-digit code.
+              Enter your email and I&apos;ll send you a sign-in code.
             </p>
             <form onSubmit={sendCode} className="mt-8 space-y-3">
               <input
@@ -108,19 +113,19 @@ export default function LoginPage() {
           <>
             <h1 className="serif text-4xl font-black mt-6 text-center leading-tight">Check your email.</h1>
             <p className="text-ink-soft text-center mt-4 text-base leading-relaxed">
-              I sent a 6-digit code to<br /><strong>{email}</strong>
+              I sent a sign-in code to<br /><strong>{email}</strong>
             </p>
             <form onSubmit={verifyCode} className="mt-8 space-y-3">
               <input
-                className="input text-center tracking-[0.5em] text-2xl font-semibold"
+                className="input text-center tracking-[0.35em] text-2xl font-semibold"
                 type="text"
                 inputMode="numeric"
                 autoComplete="one-time-code"
-                maxLength={6}
+                maxLength={8}
                 required
                 value={code}
                 onChange={e => setCode(e.target.value.replace(/\D/g, ""))}
-                placeholder="000000"
+                placeholder="Enter code"
                 autoFocus
               />
               <button className="btn btn-primary w-full" type="submit" disabled={busy || code.length < 6}>

@@ -27,6 +27,7 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>(EMPTY);
   const [busy, setBusy] = useState(false);
+  const [scoring, setScoring] = useState(false);
 
   const totalSteps = 5; // 0 welcome · 1 role · 2 industry · 3 interests · 4 done
   const progress = (step / (totalSteps - 1)) * 100;
@@ -67,6 +68,15 @@ export default function OnboardingPage() {
     if (step === 3) {
       setBusy(true);
       await saveProfile(answers);
+      // Score the whole feed for this user before they ever see the Radar,
+      // so it's personalized on first load instead of showing global scores.
+      setScoring(true);
+      try {
+        await fetch("/api/score-feed", { method: "POST" });
+      } catch {
+        // Non-fatal — Radar falls back to global scores.
+      }
+      setScoring(false);
       setBusy(false);
       setStep(4);
       return;
@@ -173,7 +183,7 @@ export default function OnboardingPage() {
 
       <div className="flex justify-center px-8 py-6 border-t border-rule bg-cream">
         <button onClick={next} disabled={!isValid || busy} className="btn btn-primary w-full max-w-xl">
-          {busy ? "Saving…" : (labels[step] ?? "Continue")}
+          {scoring ? "Building your Radar…" : busy ? "Saving…" : (labels[step] ?? "Continue")}
         </button>
       </div>
     </div>

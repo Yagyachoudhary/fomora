@@ -29,6 +29,77 @@ Be willing to label hype as "Hype". Do not flatter. Do not generalize — every 
 
 Return ONLY the JSON object.`;
 
+/**
+ * Batch-score an entire feed for one user in a single Claude call.
+ * Far cheaper than one call per launch, and fast enough to run on sign-up.
+ */
+const BATCH_SYSTEM = `You are Fomora, an AI launch analyst. You will be given ONE user profile and a NUMBERED LIST of AI product launches.
+
+Score EVERY launch for THIS specific user. Return ONLY a JSON array — no prose, no markdown fences:
+
+[{"index":0,"fomo_score":<0-100>,"verdict":"<one sentence, max 20 words>","why_you":"<2 sentences referencing their role/industry/interests>","ignore_if":"<one short sentence>"}, ...]
+
+SCORING — weight heavily on personal relevance:
+- User Relevance (40%): does this map to their role, industry, and stated interests?
+- Market Momentum (25%): adoption velocity and real traction.
+- Industry Impact (15%): does it reshape THEIR industry specifically?
+- Viral Adoption (10%): real usage vs. demo theater.
+- Early Opportunity (10%): reward being early to a real trend.
+
+BE DECISIVE. A developer infrastructure tool should score under 40 for a marketer or designer. A design tool should score under 40 for a backend engineer. Spread your scores across the full 0-100 range — if everything lands between 70 and 95, you are being useless. Most launches are irrelevant to most people; say so.
+
+Return ONLY the JSON array.`;
+
+export type FeedScore = {
+  index: number;
+  fomo_score: number;
+  verdict: string;
+  why_you: string;
+  ignore_if: string;
+};
+
+export async function scoreFeedBatch(
+  profile: Profile,
+  launches: { name: string; description: string | null; category: string | null }[]
+): Promise<FeedScore[]> {
+  if (launches.length === 0) return [];
+
+  const list = launches
+    .map((l, i) => `${i}. ${l.name} [${l.category ?? "Uncategorized"}] — ${l.description ?? "no description"}`)
+    .join("\n");
+
+  const userMessage = `USER PROFILE
+- Role: ${profile.role ?? "not specified"}
+- Industry: ${profile.industry ?? "not specified"}
+- Technical depth: ${profile.depth ?? "not specified"}
+- Interests: ${(profile.interests ?? []).join(", ") || "not specified"}
+- Tools they already use: ${(profile.tools ?? []).join(", ") || "not specified"}
+- Goals: ${(profile.goals ?? []).join(", ") || "not specified"}
+
+LAUNCHES TO SCORE
+${list}
+
+Return the JSON array only.`;
+
+  const response = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 4000,
+    system: BATCH_SYSTEM,
+    messages: [{ role: "user", content: userMessage }]
+  });
+
+  const first = response.content[0];
+  const text = first?.type === "text" ? first.text : "[]";
+  const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+
+  try {
+    const parsed = JSON.parse(cleaned) as FeedScore[];
+    return parsed.filter(p => typeof p.index === "number" && typeof p.fomo_score === "number");
+  } catch {
+    return [];
+  }
+}
+
 export async function scoreFomo(
   profile: Profile,
   launchText: string,

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { BrandHeader } from "@/components/BrandHeader";
 import { BottomNav } from "@/components/BottomNav";
+import { PersonalizeFeed } from "@/components/PersonalizeFeed";
 import type { Launch, UserLaunch } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -36,11 +37,14 @@ export default async function RadarHomePage() {
   // Decorate with the user's personalized score, fall back to base_momentum.
   const decorated = real.map(r => {
     const ul = r.user_launches?.[0];
+    const analysis = ul?.ai_analysis as { verdict?: string; ignore_if?: string } | null;
     return {
       ...r,
       fomo_score: ul?.fomo_score ?? r.base_momentum ?? 60,
       personalized: !!ul?.fomo_score,
-      status: ul?.status ?? "unseen"
+      status: ul?.status ?? "unseen",
+      verdict: analysis?.verdict ?? null,
+      ignore_reason: analysis?.ignore_if ?? null
     };
   });
 
@@ -87,18 +91,23 @@ export default async function RadarHomePage() {
       <BrandHeader streak={stats?.streak_current ?? 0} hearts={5} xp={stats?.xp_total ?? 0} />
 
       <main className="max-w-[1100px] mx-auto px-8 py-8">
-        {/* Hero */}
+        {/* Hero — compact two-column so the top launches stay above the fold */}
         <section className="hero">
-          <div className="hero-label">Today's Priority Score</div>
-          <div className="hero-score">{heroScore}<sup>/100</sup></div>
-          <hr />
-          <div className="hero-lede">
-            {top.length >= 5
-              ? `${top.filter(x => (x.fomo_score ?? 0) >= 90).length || 'A few'} paradigm-shift launches demand your attention.`
-              : 'Tune your Radar — paste your first launch in Analyze.'}
+          <div className="hero-left">
+            <div className="hero-label">Today&apos;s Priority Score</div>
+            <div className="hero-score">{heroScore}<sup>/100</sup></div>
           </div>
-          <div className="hero-sub">Tuned for {profile.role}{profile.industry ? ` in ${profile.industry}` : ''}</div>
+          <div className="hero-right">
+            <div className="hero-lede">
+              {top.length >= 5
+                ? `${top.filter(x => (x.fomo_score ?? 0) >= 90).length || 'A few'} paradigm-shift launches demand your attention.`
+                : 'Tune your Radar — paste your first launch in Analyze.'}
+            </div>
+            <div className="hero-sub">Tuned for {profile.role}{profile.industry ? ` in ${profile.industry}` : ''}</div>
+          </div>
         </section>
+
+        <PersonalizeFeed unscored={decorated.filter(r => !r.personalized).length} />
 
         {/* Top 10 */}
         <section>
@@ -134,6 +143,9 @@ export default async function RadarHomePage() {
                 <span className="text-[11px] uppercase tracking-[0.22em] text-muted font-semibold">Fomo Score</span>
                 <div className="flex-1 fomo-bar self-end mb-2" style={{ ["--w" as string]: `${r.fomo_score}%` }} />
               </div>
+              {r.verdict && (
+                <div className="quote pl-10 mt-3">&ldquo;{r.verdict}&rdquo;</div>
+              )}
               <div className="flex items-center gap-5 pl-10 mt-3 flex-wrap">
                 {r.signal_badge && (
                   <span className={`badge badge-box ${r.signal_badge === 'Paradigm Shift' ? '' : 'badge-high'}`}>{r.signal_badge}</span>
@@ -177,7 +189,7 @@ export default async function RadarHomePage() {
               <div key={r.id} className="flex items-center py-4 border-t border-dashed border-rule first:border-t-0">
                 <div>
                   <div className="serif font-bold text-lg text-muted">{r.name}</div>
-                  <div className="text-muted text-sm mt-0.5">{r.description}</div>
+                  <div className="text-muted text-sm mt-0.5">{r.ignore_reason ?? r.description}</div>
                 </div>
                 <div className="ml-auto serif italic text-2xl text-muted">{r.fomo_score}</div>
               </div>
