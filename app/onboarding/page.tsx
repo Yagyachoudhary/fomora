@@ -56,12 +56,17 @@ export default function OnboardingPage() {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
+
     await supabase.from("profiles").update({
       role: a.role,
       industry: a.industry,
       interests: a.interests,
       ...DEFAULTS
     }).eq("id", user.id);
+
+    // The profile just changed, so every cached score was computed against the
+    // OLD profile and is now wrong. Clear them so the feed rebuilds correctly.
+    await supabase.from("user_launches").delete().eq("user_id", user.id);
   }
 
   async function next() {

@@ -10,8 +10,17 @@ export const maxDuration = 60;
  * Called after onboarding, and on demand from the Radar page.
  * Only scores launches this user hasn't been scored on yet.
  */
-export async function POST() {
+export async function POST(req: Request) {
   try {
+    // { force: true } re-scores everything, e.g. after a profile change.
+    let force = false;
+    try {
+      const body = await req.json();
+      force = body?.force === true;
+    } catch {
+      // no body is fine
+    }
+
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -23,11 +32,14 @@ export async function POST() {
     }
 
     // Which launches has this user already been scored on?
-    const { data: alreadyScored } = await supabase
-      .from("user_launches")
-      .select("launch_id")
-      .eq("user_id", user.id)
-      .not("fomo_score", "is", null);
+    // When forcing, treat everything as unscored so it all gets recomputed.
+    const { data: alreadyScored } = force
+      ? { data: [] as { launch_id: string }[] }
+      : await supabase
+          .from("user_launches")
+          .select("launch_id")
+          .eq("user_id", user.id)
+          .not("fomo_score", "is", null);
     const scoredIds = new Set((alreadyScored ?? []).map(r => r.launch_id as string));
 
     // Pull the candidate feed.

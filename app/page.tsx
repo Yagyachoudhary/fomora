@@ -48,9 +48,14 @@ export default async function RadarHomePage() {
     };
   });
 
-  const top = decorated.filter(r => (r.fomo_score ?? 0) >= 70).slice(0, 10);
-  // Always surface the 3 lowest-priority launches so "Ignore These" never feels empty.
-  const ignore = [...decorated].sort((a, b) => (a.fomo_score ?? 0) - (b.fomo_score ?? 0)).slice(0, 3);
+  // Rank everything, then split. Using a hard score threshold made the feed look
+  // empty for users whose scores all landed low — rank-based split always fills both.
+  const sorted = [...decorated].sort((a, b) => (b.fomo_score ?? 0) - (a.fomo_score ?? 0));
+  const ignoreIds = new Set(
+    sorted.filter(r => (r.fomo_score ?? 0) < 55).slice(-3).map(r => r.id)
+  );
+  const top = sorted.filter(r => !ignoreIds.has(r.id)).slice(0, 10);
+  const ignore = sorted.filter(r => ignoreIds.has(r.id));
 
   // Emerging Signals — computed from real launch data, not hardcoded.
   // A category "heats up" based on how many accelerating launches it has and how
@@ -107,7 +112,11 @@ export default async function RadarHomePage() {
           </div>
         </section>
 
-        <PersonalizeFeed unscored={decorated.filter(r => !r.personalized).length} />
+        <PersonalizeFeed
+          unscored={decorated.filter(r => !r.personalized).length}
+          role={profile.role}
+          industry={profile.industry}
+        />
 
         {/* Top 10 */}
         <section>
@@ -124,37 +133,44 @@ export default async function RadarHomePage() {
           )}
 
           {top.map((r, idx) => (
-            <article key={r.id} className="launch">
-              <div className="flex items-baseline gap-3 text-sm">
-                <span className="serif italic text-ink-soft min-w-[28px]">{String(idx + 1).padStart(2, "0")}</span>
-                <span className="text-brand font-semibold tracking-wide">{r.category}</span>
-                <span className="text-muted">· {r.source}</span>
-                {!r.personalized && <span className="text-muted text-xs">(global score)</span>}
-              </div>
-              <div className="flex gap-4 items-start mt-3 pl-10">
-                <div className="logo-box">{r.name.slice(0, 1)}</div>
-                <div>
-                  <h3>{r.name}</h3>
-                  <div className="text-ink-soft text-sm mt-1">{r.description}</div>
+            <article key={r.id} className={`launch ${(r.fomo_score ?? 0) < 60 ? "is-low" : ""}`}>
+              <div className="launch-rank">{String(idx + 1).padStart(2, "0")}</div>
+
+              <div>
+                <div className="launch-meta">
+                  <span className="launch-cat">{r.category}</span>
+                  <span className="launch-src">· {r.source}</span>
+                  {!r.personalized && <span className="launch-src">· global</span>}
+                </div>
+
+                <div className="flex gap-3 items-start">
+                  <div className="logo-box">{r.name.slice(0, 1)}</div>
+                  <div className="min-w-0">
+                    <h3>{r.name}</h3>
+                    <div className="launch-desc">{r.description}</div>
+                  </div>
+                </div>
+
+                {r.verdict && <div className="quote">&ldquo;{r.verdict}&rdquo;</div>}
+
+                <div className="launch-footer">
+                  {r.signal_badge && (
+                    <span className={`badge badge-box ${r.signal_badge === "Paradigm Shift" ? "" : "badge-high"}`}>
+                      {r.signal_badge}
+                    </span>
+                  )}
+                  {r.velocity && <span className="badge badge-muted">⚡ {r.velocity}</span>}
+                  <Link href={`/analyze?url=${encodeURIComponent(r.url)}`} className="deeper ml-auto">
+                    Analyze deeper →
+                  </Link>
                 </div>
               </div>
-              <div className="flex items-baseline gap-4 mt-5 pl-10">
-                <span className="fomo-num">{r.fomo_score}</span>
-                <span className="text-[11px] uppercase tracking-[0.22em] text-muted font-semibold">Fomo Score</span>
-                <div className="flex-1 fomo-bar self-end mb-2" style={{ ["--w" as string]: `${r.fomo_score}%` }} />
+
+              <div className="score-col">
+                <div className="fomo-num">{r.fomo_score}</div>
+                <div className="fomo-label">Fomo Score</div>
+                <div className="fomo-bar" style={{ ["--w" as string]: `${r.fomo_score}%` }} />
               </div>
-              {r.verdict && (
-                <div className="quote pl-10 mt-3">&ldquo;{r.verdict}&rdquo;</div>
-              )}
-              <div className="flex items-center gap-5 pl-10 mt-3 flex-wrap">
-                {r.signal_badge && (
-                  <span className={`badge badge-box ${r.signal_badge === 'Paradigm Shift' ? '' : 'badge-high'}`}>{r.signal_badge}</span>
-                )}
-                {r.velocity && <span className="badge badge-muted">⚡ {r.velocity}</span>}
-              </div>
-              <Link href={`/analyze?url=${encodeURIComponent(r.url)}`} className="inline-flex items-center gap-2 pl-10 mt-5 font-bold text-sm hover:text-brand">
-                Analyze deeper →
-              </Link>
             </article>
           ))}
         </section>
@@ -186,12 +202,12 @@ export default async function RadarHomePage() {
             <h2 className="section-title">Safely skip for now</h2>
             <hr className="divider" />
             {ignore.map(r => (
-              <div key={r.id} className="flex items-center py-4 border-t border-dashed border-rule first:border-t-0">
+              <div key={r.id} className="ignore-row">
                 <div>
-                  <div className="serif font-bold text-lg text-muted">{r.name}</div>
-                  <div className="text-muted text-sm mt-0.5">{r.ignore_reason ?? r.description}</div>
+                  <div className="ignore-name">{r.name}</div>
+                  <div className="ignore-why">{r.ignore_reason ?? r.description}</div>
                 </div>
-                <div className="ml-auto serif italic text-2xl text-muted">{r.fomo_score}</div>
+                <div className="ignore-score">{r.fomo_score}</div>
               </div>
             ))}
           </section>
