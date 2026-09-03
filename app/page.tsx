@@ -22,7 +22,7 @@ export default async function RadarHomePage() {
   // Pull launches + the user's per-user score (if any) in one round trip.
   const { data: rows } = await supabase
     .from("launches")
-    .select(`id, url, name, source, category, description, velocity, signal_badge, base_momentum,
+    .select(`id, url, name, source, category, description, velocity, signal_badge, base_momentum, created_at,
              user_launches ( fomo_score, status, ai_analysis )`)
     .order("base_momentum", { ascending: false, nullsFirst: false })
     .limit(20);
@@ -45,7 +45,40 @@ export default async function RadarHomePage() {
   });
 
   const top = decorated.filter(r => (r.fomo_score ?? 0) >= 70).slice(0, 10);
-  const ignore = decorated.filter(r => (r.fomo_score ?? 0) < 50).slice(0, 4);
+  // Always surface the 3 lowest-priority launches so "Ignore These" never feels empty.
+  const ignore = [...decorated].sort((a, b) => (a.fomo_score ?? 0) - (b.fomo_score ?? 0)).slice(0, 3);
+
+  // Emerging Signals — computed from real launch data, not hardcoded.
+  // A category "heats up" based on how many accelerating launches it has and how
+  // highly they score for this specific user.
+  const catStats = new Map<string, { count: number; total: number; hot: number; newest: number }>();
+  for (const r of decorated) {
+    if (!r.category || r.category === "System") continue;
+    const s = catStats.get(r.category) ?? { count: 0, total: 0, hot: 0, newest: 0 };
+    s.count += 1;
+    s.total += r.fomo_score ?? 0;
+    if (r.velocity === "Exploding" || r.velocity === "Heating up") s.hot += 1;
+    const ts = r.created_at ? new Date(r.created_at).getTime() : 0;
+    if (ts > s.newest) s.newest = ts;
+    catStats.set(r.category, s);
+  }
+
+  const EMERGING = [...catStats.entries()]
+    .map(([name, s]) => ({
+      name,
+      avg: Math.round(s.total / s.count),
+      count: s.count,
+      hot: s.hot,
+      // heat score: accelerating launches weigh heaviest, then avg relevance
+      heat: s.hot * 25 + s.total / s.count
+    }))
+    .sort((a, b) => b.heat - a.heat)
+    .slice(0, 3)
+    .map((c, i) => ({
+      rank: String(i + 1).padStart(2, "0"),
+      name: c.name,
+      desc: `${c.count} launch${c.count === 1 ? "" : "es"} tracked · avg FOMO ${c.avg} for you${c.hot > 0 ? ` · ${c.hot} accelerating right now` : ""}`
+    }));
 
   const heroScore = top.length ? Math.round(top.slice(0, 5).reduce((s, x) => s + (x.fomo_score ?? 0), 0) / Math.min(5, top.length)) : 60;
 
@@ -113,6 +146,26 @@ export default async function RadarHomePage() {
             </article>
           ))}
         </section>
+
+        {/* Emerging Signals */}
+        {EMERGING.length > 0 && (
+        <section className="bg-cream-2 p-10 mt-12">
+          <div className="eyebrow" style={{ color: "var(--gold)" }}>Emerging Signals</div>
+          <h2 className="section-title">Categories heating up</h2>
+          <div className="mt-6">
+            {EMERGING.map(s => (
+              <div key={s.rank} className="flex items-start gap-4 py-4 border-t border-rule first:border-t-0">
+                <div className="serif italic font-bold text-gold min-w-[40px] text-base">{s.rank}</div>
+                <div className="flex-1">
+                  <div className="serif font-extrabold text-2xl">{s.name}</div>
+                  <div className="text-ink-soft text-sm mt-1 max-w-3xl">{s.desc}</div>
+                </div>
+                <div className="text-gold text-2xl">↗</div>
+              </div>
+            ))}
+          </div>
+        </section>
+        )}
 
         {/* Ignore */}
         {ignore.length > 0 && (
