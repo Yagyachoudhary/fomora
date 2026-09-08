@@ -23,6 +23,40 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 /* ── Section labels & headings (editorial) ── */
 .eyebrow { font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--brand); font-weight: 800; }
 
+/* ── "You don't need to pay for this" — green = money saved ── */
+.free-section { margin-top: 48px; padding: 28px 32px; background: #F2F7EF; border-left: 4px solid var(--leaf); }
+.free-eyebrow { color: #4E8039 !important; }
+.free-row {
+  display: grid; grid-template-columns: 1fr 150px;
+  gap: 20px; align-items: start;
+  padding: 16px 0; border-top: 1px solid #DCE8D4;
+}
+.free-row:first-of-type { border-top: 0; }
+.free-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.free-name { font-family: var(--font-playfair), serif; font-weight: 800; font-size: 20px; color: var(--ink); }
+.free-name:hover { color: #4E8039; text-decoration: underline; }
+.chip {
+  font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700;
+  padding: 2px 7px; border: 1px solid #B9CFAC; color: #4E8039; background: #fff; border-radius: 2px;
+}
+.chip-local { background: var(--leaf); color: #fff; border-color: var(--leaf); }
+.free-desc { color: var(--ink-soft); font-size: 13px; margin-top: 4px; line-height: 1.45; }
+.free-hw { color: var(--muted); font-size: 11.5px; margin-top: 3px; }
+.free-langs { color: var(--muted); font-size: 11px; margin-top: 3px; font-style: italic; }
+.free-replaces { text-align: right; }
+.free-replaces-label { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.free-replaces-name {
+  font-family: var(--font-playfair), serif; font-size: 15px; font-weight: 700;
+  color: var(--muted); margin-top: 3px; text-decoration: line-through;
+  text-decoration-color: var(--brand); text-decoration-thickness: 1.5px; line-height: 1.25;
+}
+
+@media (max-width: 720px) {
+  .free-section { padding: 20px 18px; }
+  .free-row { grid-template-columns: 1fr; gap: 8px; }
+  .free-replaces { text-align: left; }
+}
+
 /* ── Ignore rows — dense, deliberately muted ── */
 .ignore-row {
   display: grid; grid-template-columns: 1fr 60px;
@@ -176,7 +210,7 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 .btn:disabled { background: var(--rule); border-color: var(--rule); color: var(--muted); cursor: not-allowed; }
 
 /* ── Onboarding card grid ── */
-.ob-card { background: #fff; border: 2px solid var(--rule); padding: 20px 18px; cursor: pointer; transition: all 0.15s; text-align: left; display: flex; align-items: center; gap: 14px; font-weight: 600; font-size: 15px; color: var(--ink); user-select: none; }
+.ob-card { background: #fff; border: 2px solid var(--rule); padding: 14px 14px; cursor: pointer; transition: all 0.15s; text-align: left; display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 13.5px; color: var(--ink); user-select: none; line-height: 1.25; }
 .ob-card:hover { border-color: var(--ink); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
 .ob-card.selected { border-color: var(--brand); background: #FFF6F4; color: var(--brand); }
 .ob-card.selected::after { content: "✓"; margin-left: auto; color: var(--brand); font-weight: 700; }

@@ -28,6 +28,13 @@ export type Launch = {
   base_momentum: number | null;
   published_at: string | null;
   created_at: string;
+  // "Open & Free" layer
+  pricing: 'open-source' | 'free' | 'freemium' | 'paid' | 'unknown' | null;
+  license: string | null;
+  runs_locally: boolean | null;
+  languages: string[] | null;
+  free_alternative_to: string | null;
+  hardware_note: string | null;
 };
 
 export type FomoAnalysis = {
@@ -56,10 +63,52 @@ export type UserLaunch = {
 
 export type LaunchWithScore = Launch & { fomo_score?: number; status?: string };
 
-export const ROLES = ['Product Manager', 'Founder / CEO', 'Engineer', 'Designer', 'ML Researcher', 'Marketer', 'Finance Professional', 'Investor / VC', 'Student', 'Curious'] as const;
-export const INDUSTRIES = ['SaaS', 'Fintech', 'Design', 'Healthcare', 'E-commerce', 'Education', 'AI / ML', 'Other'] as const;
+export const ROLES = [
+  // Product & business
+  'Product Manager', 'Founder / CEO', 'Marketer', 'Growth / Ops',
+  'Finance Professional', 'Investor / VC', 'Consultant',
+  // Technical
+  'Engineer', 'Data / Analytics', 'ML Researcher',
+  // Creative
+  'Designer', 'Visual Artist', 'Illustrator', 'Photographer',
+  'Filmmaker / Video', 'Musician / Audio', 'Writer', 'Content Creator',
+  'Architect / 3D',
+  // Other
+  'Educator', 'Student', 'Curious'
+] as const;
+
+export const INDUSTRIES = [
+  'SaaS', 'Fintech', 'E-commerce', 'Healthcare', 'Education',
+  'Media & Publishing', 'Advertising', 'Film & TV', 'Music',
+  'Gaming', 'Design Studio', 'Art & Illustration', 'Architecture',
+  'Consulting', 'Retail', 'Manufacturing', 'Non-profit', 'AI / ML', 'Other'
+] as const;
+
 export const DEPTHS = ['Beginner', 'Intermediate', 'Advanced', 'Expert'] as const;
-export const INTERESTS = ['AI Coding', 'Agents', 'Video AI', 'Voice AI', 'Image AI', 'Infra / MCP', 'Productivity', 'Search', 'Open Source'] as const;
-export const TOOLS = ['Cursor', 'Claude', 'ChatGPT', 'Copilot', 'Notion AI', 'Linear', 'Figma AI', 'Perplexity', 'Lovable'] as const;
-export const GOALS = ['Career growth', 'Build a startup', 'Stay informed', 'Create content', 'Ship faster', 'Invest / scout'] as const;
+
+export const INTERESTS = [
+  // Creative
+  'Image AI', 'Video AI', '3D & Animation', 'Music & Audio AI',
+  'Design Tools', 'Writing AI', 'Voice AI',
+  // Technical
+  'AI Coding', 'Agents', 'Infra / MCP', 'Open Source', 'AI Research',
+  // Applied
+  'Productivity', 'Search', 'Marketing AI', 'Data & Analytics'
+] as const;
+
+export const TOOLS = [
+  // Creative
+  'Midjourney', 'Adobe Firefly', 'Photoshop', 'Runway', 'Sora',
+  'ElevenLabs', 'Suno', 'Canva', 'Blender', 'Descript', 'Figma',
+  // General assistants
+  'ChatGPT', 'Claude', 'Gemini', 'Perplexity', 'Notion AI',
+  // Developer
+  'Cursor', 'Copilot', 'Lovable', 'Linear'
+] as const;
+
+export const GOALS = [
+  'Career growth', 'Build a startup', 'Stay informed', 'Create content',
+  'Ship faster', 'Improve my craft', 'Find new clients', 'Invest / scout'
+] as const;
+
 export const TIME_PREFS = ['Casual', 'Daily', 'Deep'] as const;

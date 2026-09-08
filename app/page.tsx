@@ -20,6 +20,33 @@ export default async function RadarHomePage() {
   const { data: stats } = await supabase
     .from("user_stats").select("*").eq("user_id", user.id).maybeSingle();
 
+  // "You don't need to pay for this" — free/open tools that replace paid ones,
+  // filtered to the categories this user actually cares about.
+  const interests = (profile.interests ?? []) as string[];
+  const { data: freeRows } = await supabase
+    .from("launches")
+    .select("id, url, name, source, category, description, license, runs_locally, free_alternative_to, hardware_note, languages, base_momentum")
+    .in("pricing", ["open-source", "free"])
+    .not("free_alternative_to", "is", null)
+    .order("base_momentum", { ascending: false, nullsFirst: false })
+    .limit(40);
+
+  type FreeRow = {
+    id: string; url: string; name: string; source: string | null; category: string | null;
+    description: string | null; license: string | null; runs_locally: boolean | null;
+    free_alternative_to: string | null; hardware_note: string | null;
+    languages: string[] | null; base_momentum: number | null;
+  };
+  const allFree = (freeRows ?? []) as FreeRow[];
+
+  // Prefer the user's interest categories; fall back to the strongest overall.
+  const matchesInterest = (c: string | null) =>
+    !!c && interests.some(i => c.toLowerCase().includes(i.toLowerCase().split(" ")[0]));
+  const freePicks = [
+    ...allFree.filter(f => matchesInterest(f.category)),
+    ...allFree.filter(f => !matchesInterest(f.category))
+  ].slice(0, 5);
+
   // Pull launches + the user's per-user score (if any) in one round trip.
   const { data: rows } = await supabase
     .from("launches")
@@ -174,6 +201,39 @@ export default async function RadarHomePage() {
             </article>
           ))}
         </section>
+
+        {/* You don't need to pay for this */}
+        {freePicks.length > 0 && (
+          <section className="free-section">
+            <div className="eyebrow free-eyebrow">Free &amp; Open</div>
+            <h2 className="section-title">You don&apos;t need to pay for this</h2>
+            <div className="section-sub">
+              Open-source and free tools that do the same job as the paid ones. No subscription, no vendor lock-in.
+            </div>
+            <hr className="divider" />
+
+            {freePicks.map(f => (
+              <div key={f.id} className="free-row">
+                <div>
+                  <div className="free-head">
+                    <a href={f.url} target="_blank" rel="noopener noreferrer" className="free-name">{f.name}</a>
+                    {f.runs_locally && <span className="chip chip-local">Runs locally</span>}
+                    {f.license && <span className="chip">{f.license}</span>}
+                  </div>
+                  <div className="free-desc">{f.description}</div>
+                  {f.hardware_note && <div className="free-hw">{f.hardware_note}</div>}
+                  {f.languages && f.languages.length > 0 && (
+                    <div className="free-langs">{f.languages.slice(0, 4).join(" · ")}{f.languages.length > 4 ? " · …" : ""}</div>
+                  )}
+                </div>
+                <div className="free-replaces">
+                  <div className="free-replaces-label">Instead of</div>
+                  <div className="free-replaces-name">{f.free_alternative_to}</div>
+                </div>
+              </div>
+            ))}
+          </section>
+        )}
 
         {/* Emerging Signals */}
         {EMERGING.length > 0 && (

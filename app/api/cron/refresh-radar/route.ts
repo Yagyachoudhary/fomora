@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-import { fetchHackerNews, enrichLaunches } from "@/lib/crawler";
+import { fetchAllSources, enrichLaunches } from "@/lib/crawler";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -24,8 +24,8 @@ export async function GET(request: Request) {
   );
 
   try {
-    // 1. Pull recent AI stories from Hacker News (free, no key).
-    const raw = await fetchHackerNews(48, 15);
+    // 1. Pull from Hacker News + Product Hunt + Reddit in parallel (all free, no keys).
+    const raw = await fetchAllSources();
     if (raw.length === 0) {
       return NextResponse.json({ ok: true, found: 0, inserted: 0, note: "No AI stories matched." });
     }
@@ -75,12 +75,19 @@ export async function GET(request: Request) {
     // 5. Housekeeping: drop the old heartbeat row if it's still around.
     await supabase.from("launches").delete().eq("url", "https://fomora.app/_cron_heartbeat");
 
+    // Per-source counts make it obvious at a glance if one feed has gone quiet.
+    const bySource = raw.reduce<Record<string, number>>((acc, r) => {
+      acc[r.source] = (acc[r.source] ?? 0) + 1;
+      return acc;
+    }, {});
+
     return NextResponse.json({
       ok: true,
       ran_at: new Date().toISOString(),
       found: raw.length,
       new: fresh.length,
-      inserted
+      inserted,
+      by_source: bySource
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";

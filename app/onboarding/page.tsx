@@ -32,12 +32,14 @@ export default function OnboardingPage() {
   const totalSteps = 5; // 0 welcome · 1 role · 2 industry · 3 interests · 4 done
   const progress = (step / (totalSteps - 1)) * 100;
 
+  const MAX_INTERESTS = 5;
+
   function toggleInterest(value: string) {
     setAnswers(a => {
       if (a.interests.includes(value)) {
         return { ...a, interests: a.interests.filter(v => v !== value) };
       }
-      if (a.interests.length >= 3) return a;
+      if (a.interests.length >= MAX_INTERESTS) return a;
       return { ...a, interests: [...a.interests, value] };
     });
   }
@@ -141,9 +143,9 @@ export default function OnboardingPage() {
 
           {step === 1 && (
             <Question eyebrow="Question 1 of 3" title="What do you do?" sub="This shapes how everything gets scored.">
-              <div className="grid grid-cols-2 gap-3 max-w-xl mx-auto">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 max-w-2xl mx-auto">
                 {ROLES.map(r => (
-                  <Card key={r} selected={answers.role === r} onClick={() => setAnswers(a => ({ ...a, role: r }))}>{r}</Card>
+                  <Card key={r} center selected={answers.role === r} onClick={() => setAnswers(a => ({ ...a, role: r }))}>{r}</Card>
                 ))}
               </div>
             </Question>
@@ -151,20 +153,20 @@ export default function OnboardingPage() {
 
           {step === 2 && (
             <Question eyebrow="Question 2 of 3" title="Which industry?" sub="So launches get scored against your actual work.">
-              <div className="grid grid-cols-2 gap-3 max-w-xl mx-auto">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 max-w-2xl mx-auto">
                 {INDUSTRIES.map(i => (
-                  <Card key={i} selected={answers.industry === i} onClick={() => setAnswers(a => ({ ...a, industry: i }))}>{i}</Card>
+                  <Card key={i} center selected={answers.industry === i} onClick={() => setAnswers(a => ({ ...a, industry: i }))}>{i}</Card>
                 ))}
               </div>
             </Question>
           )}
 
           {step === 3 && (
-            <Question eyebrow="Question 3 of 3" title="What gets you excited?" sub="Pick up to 3. These rank highest in your Radar.">
-              <p className={`text-sm font-semibold mb-5 ${answers.interests.length === 3 ? "text-brand" : "text-muted"}`}>
-                {answers.interests.length} of 3 selected
+            <Question eyebrow="Question 3 of 3" title="What gets you excited?" sub={`Pick up to ${MAX_INTERESTS}. These rank highest in your Radar.`}>
+              <p className={`text-sm font-semibold mb-5 ${answers.interests.length === MAX_INTERESTS ? "text-brand" : "text-muted"}`}>
+                {answers.interests.length} of {MAX_INTERESTS} selected
               </p>
-              <div className="grid grid-cols-3 gap-3 max-w-xl mx-auto">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 max-w-2xl mx-auto">
                 {INTERESTS.map(i => (
                   <Card key={i} center selected={answers.interests.includes(i)} onClick={() => toggleInterest(i)}>{i}</Card>
                 ))}
