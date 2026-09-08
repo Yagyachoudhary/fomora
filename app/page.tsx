@@ -25,7 +25,7 @@ export default async function RadarHomePage() {
   const interests = (profile.interests ?? []) as string[];
   const { data: freeRows } = await supabase
     .from("launches")
-    .select("id, url, name, source, category, description, license, runs_locally, free_alternative_to, hardware_note, languages, base_momentum")
+    .select("id, url, name, source, category, description, license, runs_locally, free_alternative_to, hardware_note, languages, base_momentum, replaces_cost_monthly")
     .in("pricing", ["open-source", "free"])
     .not("free_alternative_to", "is", null)
     .order("base_momentum", { ascending: false, nullsFirst: false })
@@ -36,6 +36,7 @@ export default async function RadarHomePage() {
     description: string | null; license: string | null; runs_locally: boolean | null;
     free_alternative_to: string | null; hardware_note: string | null;
     languages: string[] | null; base_momentum: number | null;
+    replaces_cost_monthly: number | null;
   };
   const allFree = (freeRows ?? []) as FreeRow[];
 
@@ -46,6 +47,9 @@ export default async function RadarHomePage() {
     ...allFree.filter(f => matchesInterest(f.category)),
     ...allFree.filter(f => !matchesInterest(f.category))
   ].slice(0, 5);
+
+  // The headline number. A currency figure is what makes this section land.
+  const monthlySaving = freePicks.reduce((sum, f) => sum + (f.replaces_cost_monthly ?? 0), 0);
 
   // Pull launches + the user's per-user score (if any) in one round trip.
   const { data: rows } = await supabase
@@ -145,6 +149,54 @@ export default async function RadarHomePage() {
           industry={profile.industry}
         />
 
+        {/* You don't need to pay for this — sits above the ranked feed because
+            it answers a different question: not "what matters" but "what are
+            you overpaying for". Too valuable to bury under ten launches. */}
+        {freePicks.length > 0 && (
+          <section className="free-section">
+            <div className="free-banner">
+              <div>
+                <div className="eyebrow free-eyebrow">Free &amp; Open</div>
+                <h2 className="section-title">You don&apos;t need to pay for this</h2>
+                <div className="section-sub">
+                  Open-source tools that do the same job as the paid ones. No subscription, no lock-in.
+                </div>
+              </div>
+              {monthlySaving > 0 && (
+                <div className="saving-badge">
+                  <div className="saving-num">${monthlySaving}</div>
+                  <div className="saving-label">per month<br />you&apos;re not spending</div>
+                </div>
+              )}
+            </div>
+            <hr className="divider" />
+
+            {freePicks.map(f => (
+              <div key={f.id} className="free-row">
+                <div>
+                  <div className="free-head">
+                    <a href={f.url} target="_blank" rel="noopener noreferrer" className="free-name">{f.name}</a>
+                    {f.runs_locally && <span className="chip chip-local">Runs locally</span>}
+                    {f.license && <span className="chip">{f.license}</span>}
+                  </div>
+                  <div className="free-desc">{f.description}</div>
+                  {f.hardware_note && <div className="free-hw">{f.hardware_note}</div>}
+                  {f.languages && f.languages.length > 0 && (
+                    <div className="free-langs">{f.languages.slice(0, 4).join(" · ")}{f.languages.length > 4 ? " · …" : ""}</div>
+                  )}
+                </div>
+                <div className="free-replaces">
+                  <div className="free-replaces-label">Instead of</div>
+                  <div className="free-replaces-name">{f.free_alternative_to}</div>
+                  {f.replaces_cost_monthly ? (
+                    <div className="free-replaces-cost">~${f.replaces_cost_monthly}/mo saved</div>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </section>
+        )}
+
         {/* Top 10 */}
         <section>
           <div className="eyebrow">The Top {top.length}</div>
@@ -201,39 +253,6 @@ export default async function RadarHomePage() {
             </article>
           ))}
         </section>
-
-        {/* You don't need to pay for this */}
-        {freePicks.length > 0 && (
-          <section className="free-section">
-            <div className="eyebrow free-eyebrow">Free &amp; Open</div>
-            <h2 className="section-title">You don&apos;t need to pay for this</h2>
-            <div className="section-sub">
-              Open-source and free tools that do the same job as the paid ones. No subscription, no vendor lock-in.
-            </div>
-            <hr className="divider" />
-
-            {freePicks.map(f => (
-              <div key={f.id} className="free-row">
-                <div>
-                  <div className="free-head">
-                    <a href={f.url} target="_blank" rel="noopener noreferrer" className="free-name">{f.name}</a>
-                    {f.runs_locally && <span className="chip chip-local">Runs locally</span>}
-                    {f.license && <span className="chip">{f.license}</span>}
-                  </div>
-                  <div className="free-desc">{f.description}</div>
-                  {f.hardware_note && <div className="free-hw">{f.hardware_note}</div>}
-                  {f.languages && f.languages.length > 0 && (
-                    <div className="free-langs">{f.languages.slice(0, 4).join(" · ")}{f.languages.length > 4 ? " · …" : ""}</div>
-                  )}
-                </div>
-                <div className="free-replaces">
-                  <div className="free-replaces-label">Instead of</div>
-                  <div className="free-replaces-name">{f.free_alternative_to}</div>
-                </div>
-              </div>
-            ))}
-          </section>
-        )}
 
         {/* Emerging Signals */}
         {EMERGING.length > 0 && (

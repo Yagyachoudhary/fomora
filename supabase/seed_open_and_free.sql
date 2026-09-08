@@ -23,7 +23,7 @@ values
  'Strong English accuracy with clean punctuation and formatting.',
  'open-source', 'Open weights', true, ARRAY['English'], 'AssemblyAI, Deepgram', 'GPU recommended', 'Heating up', 'High Signal', 80),
 
-('https://huggingface.co/Qwen', 'Qwen3-ASR', 'Alibaba', 'Voice AI',
+('https://huggingface.co/models?search=qwen%20asr', 'Qwen3-ASR', 'Alibaba', 'Voice AI',
  'Speech recognition across 52 languages with language ID and timestamps.',
  'open-source', 'Open weights', true, ARRAY['Multilingual','Chinese','English'], 'Google Speech-to-Text', 'GPU recommended', 'Heating up', 'High Signal', 79),
 

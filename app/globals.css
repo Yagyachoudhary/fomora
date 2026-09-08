@@ -24,7 +24,29 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 .eyebrow { font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--brand); font-weight: 800; }
 
 /* ── "You don't need to pay for this" — green = money saved ── */
-.free-section { margin-top: 48px; padding: 28px 32px; background: #F2F7EF; border-left: 4px solid var(--leaf); }
+.free-section { margin: 4px 0 40px; padding: 26px 30px; background: #F2F7EF; border-left: 4px solid var(--leaf); }
+.free-banner { display: flex; align-items: flex-start; justify-content: space-between; gap: 28px; flex-wrap: wrap; }
+
+/* The money number — this is what makes the section land */
+.saving-badge {
+  background: var(--leaf); color: #fff;
+  padding: 14px 22px; border-radius: 2px;
+  text-align: center; flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(111,170,92,0.35);
+}
+.saving-num {
+  font-family: var(--font-playfair), serif;
+  font-size: 44px; font-weight: 900; line-height: 1;
+  letter-spacing: -0.03em; font-variant-numeric: tabular-nums;
+}
+.saving-label {
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  font-weight: 700; margin-top: 6px; opacity: 0.92; line-height: 1.35;
+}
+.free-replaces-cost {
+  font-size: 10.5px; letter-spacing: 0.06em; font-weight: 700;
+  color: #4E8039; margin-top: 4px; text-transform: uppercase;
+}
 .free-eyebrow { color: #4E8039 !important; }
 .free-row {
   display: grid; grid-template-columns: 1fr 150px;
