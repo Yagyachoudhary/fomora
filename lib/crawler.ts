@@ -26,6 +26,18 @@ const AI_PATTERN =
 const NOISE_PATTERN =
   /\b(lawsuit|sued|regulation|opinion|why i|i think|rant|essay|is dead|considered harmful|ask hn|my first|i made this|feedback|help|question|workflow share|prompt share|showcase|wallpaper|meme|nsfw)\b/i;
 
+// Operational noise — outages, incidents, status pages. These are not launches,
+// but they trend on HN and were scoring 85+ before this filter existed.
+const OPS_PATTERN =
+  /\b(status (?:page|report|update)|outage|incident|degraded|downtime|post-?mortem|scheduled maintenance|is down|elevated (?:errors|error rates?)|service disruption)\b/i;
+
+// Status subdomains never carry launches.
+const OPS_URL_PATTERN = /(^|\/\/|\.)status\.[a-z0-9-]+\./i;
+
+function isNoise(title: string, url = "") {
+  return NOISE_PATTERN.test(title) || OPS_PATTERN.test(title) || OPS_URL_PATTERN.test(url);
+}
+
 const UA = "Mozilla/5.0 (compatible; FomoraBot/1.0; +https://fomora.vercel.app)";
 
 /** Momentum on a 0-100 scale from a raw vote/point count. */
@@ -55,7 +67,7 @@ export async function fetchHackerNews(hoursBack = 48, minPoints = 15): Promise<R
         source: "Hacker News",
         createdAt: String(h.created_at ?? new Date().toISOString())
       }))
-      .filter(h => h.url && h.title && AI_PATTERN.test(h.title) && !NOISE_PATTERN.test(h.title));
+      .filter(h => h.url && h.title && AI_PATTERN.test(h.title) && !isNoise(h.title, h.url));
   } catch {
     return [];
   }
@@ -102,7 +114,7 @@ export async function fetchProductHunt(): Promise<RawLaunch[]> {
       if (!title || !link) continue;
       // Match on title AND description — PH titles are often just a bare product name.
       if (!AI_PATTERN.test(`${title} ${desc}`)) continue;
-      if (NOISE_PATTERN.test(title)) continue;
+      if (isNoise(title, link)) continue;
 
       out.push({
         url: link,
@@ -330,7 +342,16 @@ For EACH numbered item, decide:
 - category: exactly one of "AI Coding", "AI Agents", "AI Infra", "Image AI", "Video AI", "3D & Animation", "Music & Audio AI", "Voice AI", "Writing AI", "Design Tools", "AI Productivity", "AI Search", "Marketing AI", "Data & Analytics", "Open Source AI", "AI Research"
 - velocity: one of "Exploding", "Heating up", "Steady", "Cooling" — infer from the points count (300+ Exploding, 120+ Heating up, 40+ Steady, else Cooling)
 - signal_badge: one of "Paradigm Shift", "High Signal", "Emerging", "Hype"
-- skip: true ONLY if this is clearly not about an AI product, model, tool or research release. Default to false. Be permissive — it is better to include a marginal item than to drop a real launch.
+- skip: true in any of these cases, otherwise false:
+    (a) it is not about an AI product, model, tool or research release
+    (b) it is an outage, status report, incident or service disruption
+    (c) it describes the SAME underlying news as an EARLIER item in this list —
+        keep the earliest occurrence and skip the later ones. Two headlines about
+        the same release from different sites are duplicates even when the
+        wording and URLs differ.
+
+Apart from those three cases, be permissive: it is better to include a marginal
+item than to drop a real launch.
 
 Return ONLY a JSON array, one object per input item, same order:
 [{"index":0,"name":"...","description":"...","category":"...","velocity":"...","signal_badge":"...","skip":false}]
