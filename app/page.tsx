@@ -57,8 +57,12 @@ export default async function RadarHomePage() {
     .from("launches")
     .select(`id, url, name, source, category, description, velocity, signal_badge, base_momentum, created_at,
              user_launches ( fomo_score, status, ai_analysis )`)
-    .order("base_momentum", { ascending: false, nullsFirst: false })
-    .limit(20);
+    // Fetch by RECENCY, then rank by personalized score below. Ordering the
+    // fetch by base_momentum meant sources without vote counts (Product Hunt is
+    // a flat 60) never entered the candidate pool, so they could never appear
+    // no matter how well they scored for the user.
+    .order("created_at", { ascending: false })
+    .limit(60);
 
   type Row = Launch & { user_launches: Pick<UserLaunch, "fomo_score" | "status" | "ai_analysis">[] };
   const all = (rows ?? []) as unknown as Row[];
