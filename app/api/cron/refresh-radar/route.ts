@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-import { fetchAllSources, enrichLaunches } from "@/lib/crawler";
+import { fetchAllSources, enrichLaunchesVerbose, lastSourceDiag } from "@/lib/crawler";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -44,7 +44,7 @@ export async function GET(request: Request) {
     }
 
     // 3. One Haiku call to name, describe, and categorize the batch.
-    const enriched = await enrichLaunches(fresh);
+    const { items: enriched, diag } = await enrichLaunchesVerbose(fresh);
 
     // 4. Upsert into launches.
     let inserted = 0;
@@ -87,7 +87,9 @@ export async function GET(request: Request) {
       found: raw.length,
       new: fresh.length,
       inserted,
-      by_source: bySource
+      by_source: bySource,
+      raw_per_source: lastSourceDiag,
+      enrich: diag
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";

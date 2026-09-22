@@ -64,8 +64,9 @@ export async function fetchHackerNews(hoursBack = 48, minPoints = 15): Promise<R
 /* ────────────────────────── Product Hunt ────────────────────────── */
 
 /**
- * Product Hunt's public RSS. No API key. Far better creative-tool coverage
- * than HN — this is where design, video, and image tools actually launch.
+ * Product Hunt's public feed. Note this is ATOM, not RSS — entries are <entry>,
+ * and the link is an href attribute rather than element text. Parsing it as RSS
+ * silently yields zero results.
  */
 export async function fetchProductHunt(): Promise<RawLaunch[]> {
   try {
@@ -76,30 +77,37 @@ export async function fetchProductHunt(): Promise<RawLaunch[]> {
     if (!res.ok) return [];
     const xml = await res.text();
 
-    const chunks = xml.split(/<item>/i).slice(1);
+    const decode = (s: string) =>
+      s
+        .replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+        .replace(/&amp;/g, "&");
+
+    const chunks = xml.split(/<entry[\s>]/i).slice(1);
     const out: RawLaunch[] = [];
 
     for (const c of chunks) {
-      const pick = (tag: string) => {
-        const m = c.match(new RegExp(`<${tag}[^>]*>(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?</${tag}>`, "i"));
-        return m ? m[1].trim() : "";
-      };
+      const titleM = c.match(/<title[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i);
+      const linkM = c.match(/<link[^>]*href=["']([^"']+)["']/i);
+      const contentM = c.match(/<content[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/content>/i);
+      const dateM = c.match(/<(?:updated|published)[^>]*>([\s\S]*?)<\//i);
 
-      const title = pick("title").replace(/<[^>]+>/g, "").trim();
-      const link = pick("link").replace(/<[^>]+>/g, "").trim();
-      const desc = pick("description").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
-      const date = pick("pubDate");
+      const title = titleM ? decode(titleM[1]).replace(/<[^>]+>/g, "").trim() : "";
+      const link = linkM ? linkM[1].trim() : "";
+      const desc = contentM
+        ? decode(contentM[1]).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
+        : "";
+      const date = dateM ? dateM[1].trim() : "";
 
       if (!title || !link) continue;
-      // Match against title AND description — PH titles are often just a product name.
-      const haystack = `${title} ${desc}`;
-      if (!AI_PATTERN.test(haystack)) continue;
+      // Match on title AND description — PH titles are often just a bare product name.
+      if (!AI_PATTERN.test(`${title} ${desc}`)) continue;
       if (NOISE_PATTERN.test(title)) continue;
 
       out.push({
         url: link,
         title,
-        // RSS carries no vote count; PH front-page placement implies real traction.
+        // The feed carries no vote count; front-page placement implies real traction.
         points: 60,
         source: "Product Hunt",
         createdAt: date ? new Date(date).toISOString() : new Date().toISOString(),
@@ -110,6 +118,63 @@ export async function fetchProductHunt(): Promise<RawLaunch[]> {
   } catch {
     return [];
   }
+}
+
+/* ────────────────────────── Hugging Face ────────────────────────── */
+
+const HF_PIPELINES = [
+  "text-to-image",
+  "text-to-video",
+  "text-to-speech",
+  "automatic-speech-recognition",
+  "image-to-video",
+  "text-to-audio",
+  "image-to-image"
+];
+
+/**
+ * Hugging Face's public API. No auth, no blocking, and it is where open image,
+ * audio and video models actually land — the coverage Hacker News misses
+ * entirely. Replaces Reddit, which now 403s on both its JSON and RSS endpoints.
+ */
+export async function fetchHuggingFace(daysBack = 45, minLikes = 25): Promise<RawLaunch[]> {
+  const cutoff = Date.now() - daysBack * 86400000;
+  const results: RawLaunch[] = [];
+
+  await Promise.all(
+    HF_PIPELINES.map(async tag => {
+      try {
+        const url =
+          `https://huggingface.co/api/models?pipeline_tag=${encodeURIComponent(tag)}` +
+          `&sort=likes&direction=-1&limit=30`;
+        const res = await fetch(url, { cache: "no-store", headers: { "User-Agent": UA } });
+        if (!res.ok) return;
+        const json = (await res.json()) as Array<Record<string, unknown>>;
+
+        for (const m of json) {
+          const id = String(m.id ?? m.modelId ?? "");
+          const likes = Number(m.likes ?? 0);
+          const created = m.createdAt ? new Date(String(m.createdAt)).getTime() : 0;
+          if (!id || likes < minLikes) continue;
+          // Only recent releases — this is a launch feed, not a leaderboard.
+          if (created && created < cutoff) continue;
+
+          results.push({
+            url: `https://huggingface.co/${id}`,
+            title: id.split("/").pop() ?? id,
+            points: likes,
+            source: "Hugging Face",
+            createdAt: created ? new Date(created).toISOString() : new Date().toISOString(),
+            hint: `Open model on Hugging Face, pipeline: ${tag}, ${likes} likes`
+          });
+        }
+      } catch {
+        // one dead pipeline shouldn't kill the crawl
+      }
+    })
+  );
+
+  return results;
 }
 
 /* ────────────────────────── Reddit ────────────────────────── */
@@ -123,8 +188,9 @@ const DEFAULT_SUBS = [
 ];
 
 /**
- * Reddit's public JSON endpoints. No auth needed for read-only.
- * This is where creative-AI tooling breaks before it reaches HN.
+ * DISABLED — Reddit now returns 403 for unauthenticated requests on both its
+ * .json and .rss endpoints, regardless of User-Agent. Kept for reference in case
+ * we later add OAuth. Hugging Face replaced it as the creative-coverage source.
  */
 export async function fetchReddit(subs: string[] = DEFAULT_SUBS, minScore = 80): Promise<RawLaunch[]> {
   const results: RawLaunch[] = [];
@@ -188,17 +254,24 @@ export async function fetchReddit(subs: string[] = DEFAULT_SUBS, minScore = 80):
  * A launch appearing on multiple sources gets a momentum boost — cross-source
  * presence is a genuine signal that something is breaking out.
  */
+export type SourceDiagnostics = { hn: number; productHunt: number; huggingFace: number };
+export let lastSourceDiag: SourceDiagnostics = { hn: 0, productHunt: 0, huggingFace: 0 };
+
 export async function fetchAllSources(): Promise<RawLaunch[]> {
-  const [hn, ph, reddit] = await Promise.all([
+  const [hn, ph, hf] = await Promise.all([
     fetchHackerNews(48, 15),
     fetchProductHunt(),
-    fetchReddit()
+    fetchHuggingFace()
   ]);
+
+  // Record raw per-source counts BEFORE dedupe, so a source returning zero is
+  // distinguishable from a source whose items all got merged away.
+  lastSourceDiag = { hn: hn.length, productHunt: ph.length, huggingFace: hf.length };
 
   const byUrl = new Map<string, RawLaunch>();
   const norm = (u: string) => u.replace(/[?#].*$/, "").replace(/\/$/, "").toLowerCase();
 
-  for (const item of [...hn, ...ph, ...reddit]) {
+  for (const item of [...hn, ...ph, ...hf]) {
     const key = norm(item.url);
     const existing = byUrl.get(key);
     if (!existing) {
@@ -223,6 +296,99 @@ export async function fetchAllSources(): Promise<RawLaunch[]> {
  * One Haiku call to categorize + describe a whole batch. Costs a fraction of a
  * cent per cron run, far cheaper than per-item calls.
  */
+export type EnrichDiagnostics = {
+  sent: number;
+  parsed: number;
+  skipped: number;
+  kept: number;
+  error?: string;
+  rawSample?: string;
+};
+
+/**
+ * Same as enrichLaunches but also reports what happened. Used by the cron so a
+ * silent failure can't hide behind "inserted: 0".
+ */
+export async function enrichLaunchesVerbose(
+  raw: RawLaunch[]
+): Promise<{ items: EnrichedLaunch[]; diag: EnrichDiagnostics }> {
+  const diag: EnrichDiagnostics = { sent: 0, parsed: 0, skipped: 0, kept: 0 };
+  if (raw.length === 0) return { items: [], diag };
+
+  const batch = raw.slice(0, 30);
+  diag.sent = batch.length;
+
+  const list = batch
+    .map((r, i) => `${i}. "${r.title}" [${r.source}, ${r.points} pts] — ${r.url}${r.hint ? ` — ${r.hint}` : ""}`)
+    .join("\n");
+
+  const system = `You classify AI product launches for a feed called Fomora.
+
+For EACH numbered item, decide:
+- name: the clean product/company name (not the headline). If it's not really a product, use a short topic name.
+- description: one sentence, max 15 words, plain and factual. No hype adjectives.
+- category: exactly one of "AI Coding", "AI Agents", "AI Infra", "Image AI", "Video AI", "3D & Animation", "Music & Audio AI", "Voice AI", "Writing AI", "Design Tools", "AI Productivity", "AI Search", "Marketing AI", "Data & Analytics", "Open Source AI", "AI Research"
+- velocity: one of "Exploding", "Heating up", "Steady", "Cooling" — infer from the points count (300+ Exploding, 120+ Heating up, 40+ Steady, else Cooling)
+- signal_badge: one of "Paradigm Shift", "High Signal", "Emerging", "Hype"
+- skip: true ONLY if this is clearly not about an AI product, model, tool or research release. Default to false. Be permissive — it is better to include a marginal item than to drop a real launch.
+
+Return ONLY a JSON array, one object per input item, same order:
+[{"index":0,"name":"...","description":"...","category":"...","velocity":"...","signal_badge":"...","skip":false}]
+
+No prose, no markdown fences.`;
+
+  let text = "";
+  try {
+    const response = await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: 8000,
+      system,
+      messages: [{ role: "user", content: list }]
+    });
+    const first = response.content[0];
+    text = first?.type === "text" ? first.text : "";
+  } catch (e) {
+    diag.error = `anthropic call failed: ${e instanceof Error ? e.message : String(e)}`;
+    return { items: [], diag };
+  }
+
+  // Pull out the JSON array even if the model wrapped it in prose or fences.
+  let cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+  const start = cleaned.indexOf("[");
+  const end = cleaned.lastIndexOf("]");
+  if (start !== -1 && end !== -1 && end > start) cleaned = cleaned.slice(start, end + 1);
+
+  let parsed: Array<Record<string, unknown>> = [];
+  try {
+    parsed = JSON.parse(cleaned);
+  } catch (e) {
+    diag.error = `json parse failed: ${e instanceof Error ? e.message : String(e)}`;
+    diag.rawSample = text.slice(0, 400);
+    return { items: [], diag };
+  }
+  diag.parsed = parsed.length;
+
+  const out: EnrichedLaunch[] = [];
+  for (const p of parsed) {
+    const idx = Number(p.index);
+    const src = batch[idx];
+    if (!src) continue;
+    if (p.skip === true) { diag.skipped += 1; continue; }
+
+    out.push({
+      ...src,
+      name: String(p.name ?? src.title).slice(0, 120),
+      description: String(p.description ?? "").slice(0, 300),
+      category: String(p.category ?? "AI Research"),
+      velocity: (p.velocity as EnrichedLaunch["velocity"]) ?? "Steady",
+      signal_badge: (p.signal_badge as EnrichedLaunch["signal_badge"]) ?? "Emerging",
+      base_momentum: momentumFromPoints(src.points)
+    });
+  }
+  diag.kept = out.length;
+  return { items: out, diag };
+}
+
 export async function enrichLaunches(raw: RawLaunch[]): Promise<EnrichedLaunch[]> {
   if (raw.length === 0) return [];
 
