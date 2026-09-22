@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { BrandHeader } from "@/components/BrandHeader";
 import { BottomNav } from "@/components/BottomNav";
+import { LaunchIcon } from "@/components/LaunchIcon";
 import type { Launch } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -37,7 +38,7 @@ export default async function SavedPage() {
           <div>
             {items.map((it, i) => (
               <div key={i} className="flex items-center gap-5 py-6 border-b border-rule">
-                <div className="logo-box w-12 h-12 text-lg">{it.launches.name.slice(0, 1)}</div>
+                <LaunchIcon url={it.launches.url} name={it.launches.name} size={44} />
                 <div>
                   <h4 className="serif font-extrabold text-xl">{it.launches.name}</h4>
                   <div className="text-muted text-xs uppercase tracking-wider mt-1">

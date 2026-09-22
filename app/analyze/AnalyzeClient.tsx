@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { BrandHeader } from "@/components/BrandHeader";
 import { BottomNav } from "@/components/BottomNav";
+import { LaunchIcon } from "@/components/LaunchIcon";
 import type { FomoAnalysis } from "@/lib/types";
 
 export default function AnalyzeClient() {
@@ -81,7 +82,7 @@ export default function AnalyzeClient() {
         {analysis && (
           <section className="bg-white border border-rule p-10 mt-0">
             <div className="flex gap-5 items-start">
-              <div className="logo-box">{(name || "?").slice(0, 1)}</div>
+              <LaunchIcon url={/^https?:\/\//.test(input) ? input : ""} name={name || "?"} size={56} />
               <div>
                 <h2 className="serif text-3xl font-extrabold">{name}</h2>
                 <div className="text-muted text-sm mt-1">Personalized analysis · {new Date().toLocaleDateString()}</div>

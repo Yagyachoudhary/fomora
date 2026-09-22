@@ -196,13 +196,19 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 }
 .deeper:hover { color: var(--brand); }
 
-/* logo mark — solid navy, high contrast */
+/* logo mark — real favicon, lettermark fallback */
 .logo-box {
   width: 40px; height: 40px; flex-shrink: 0;
   background: var(--navy); color: #fff;
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-playfair), serif; font-weight: 800; font-size: 18px;
-  border-radius: 2px;
+  border-radius: 3px;
+}
+.logo-img {
+  flex-shrink: 0; border-radius: 3px;
+  background: #fff; padding: 5px;
+  border: 1px solid var(--rule);
+  object-fit: contain;
 }
 
 @media (max-width: 720px) {

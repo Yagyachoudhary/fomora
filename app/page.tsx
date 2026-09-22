@@ -4,6 +4,7 @@ import Link from "next/link";
 import { BrandHeader } from "@/components/BrandHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { PersonalizeFeed } from "@/components/PersonalizeFeed";
+import { LaunchIcon } from "@/components/LaunchIcon";
 import type { Launch, UserLaunch } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -223,7 +224,7 @@ export default async function RadarHomePage() {
                 </div>
 
                 <div className="flex gap-3 items-start">
-                  <div className="logo-box">{r.name.slice(0, 1)}</div>
+                  <LaunchIcon url={r.url} name={r.name} size={40} />
                   <div className="min-w-0">
                     <h3>{r.name}</h3>
                     <div className="launch-desc">{r.description}</div>
