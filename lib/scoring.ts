@@ -83,19 +83,26 @@ Return the JSON array only.`;
 
   const response = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 4000,
+    // Needs headroom: a 60-item batch produces a long JSON array, and truncation
+    // mid-array makes the whole response unparseable.
+    max_tokens: 12000,
     system: BATCH_SYSTEM,
     messages: [{ role: "user", content: userMessage }]
   });
 
   const first = response.content[0];
   const text = first?.type === "text" ? first.text : "[]";
-  const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+  let cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+  // Salvage the array even if the model wrapped it in prose.
+  const start = cleaned.indexOf("[");
+  const end = cleaned.lastIndexOf("]");
+  if (start !== -1 && end !== -1 && end > start) cleaned = cleaned.slice(start, end + 1);
 
   try {
     const parsed = JSON.parse(cleaned) as FeedScore[];
     return parsed.filter(p => typeof p.index === "number" && typeof p.fomo_score === "number");
   } catch {
+    console.error("[scoreFeedBatch] parse failed, first 300 chars:", text.slice(0, 300));
     return [];
   }
 }

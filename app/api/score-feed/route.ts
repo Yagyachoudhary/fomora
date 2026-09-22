@@ -43,12 +43,16 @@ export async function POST(req: Request) {
     const scoredIds = new Set((alreadyScored ?? []).map(r => r.launch_id as string));
 
     // Pull the candidate feed.
+    // Ordered by RECENCY, not momentum. Ordering by momentum meant low-momentum
+    // sources (Product Hunt items all carry a flat 60, since the Atom feed has no
+    // vote count) never made the cutoff, never got personalized, and so could
+    // never appear in the Radar at all — the source was silently filtered out.
     const { data: launches } = await supabase
       .from("launches")
-      .select("id, name, description, category")
+      .select("id, name, description, category, source")
       .neq("category", "System")
-      .order("base_momentum", { ascending: false, nullsFirst: false })
-      .limit(25);
+      .order("created_at", { ascending: false })
+      .limit(60);
 
     const todo = (launches ?? []).filter(l => !scoredIds.has(l.id as string));
     if (todo.length === 0) {
