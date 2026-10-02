@@ -183,7 +183,7 @@ export default function LoginPage() {
             <BrandParrot size={230} />
           </div>
 
-          <div className="login-card">
+          <div className="login-card login-card-tight">
             <h2 className="login-card-h">Get your Radar</h2>
             <p className="login-card-sub">No password. We email you a six-digit code.</p>
 

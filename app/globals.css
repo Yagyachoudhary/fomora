@@ -335,7 +335,25 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 
 /* form side */
 .login-form-wrap { position: sticky; top: 48px; }
-.login-parrot-wrap { display: flex; justify-content: center; margin-bottom: -18px; position: relative; z-index: 1; }
+/* The supplied logo is a square PNG on a WHITE background with the wordmark
+   baked into the lower third. Two tricks make it sit naturally on cream:
+   - multiply blending drops the white box out against the warm background
+   - a fixed-height window with object-position:top crops the wordmark away,
+     so "Fomora" isn't repeated next to the brandline */
+.login-parrot-wrap {
+  display: flex; justify-content: center;
+  margin-bottom: 18px; position: relative;
+  height: 180px; overflow: hidden;
+}
+.login-parrot-wrap img,
+.login-parrot-wrap > span {
+  mix-blend-mode: multiply;
+  object-fit: cover;
+  object-position: center 8%;
+  height: 230px !important;
+  width: auto !important;
+  max-width: none;
+}
 .parrot-float { animation: parrotFloat 4s ease-in-out infinite; transform-origin: 50% 90%; }
 @keyframes parrotFloat {
   0%, 100% { transform: translateY(0) rotate(-1.5deg); }
@@ -345,6 +363,7 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
   .parrot-float, .login-mascot-sm { animation: none; }
 }
 .login-card { background: #fff; border: 1px solid var(--rule); padding: 30px 28px; box-shadow: 0 8px 32px rgba(26,23,20,0.07); }
+.login-card-tight { position: relative; z-index: 2; }
 .login-card-h { font-family: var(--font-playfair), serif; font-weight: 800; font-size: 28px; letter-spacing: -0.02em; }
 .login-card-sub { color: var(--muted); font-size: 13.5px; margin-top: 6px; }
 .login-trust { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--rule); display: grid; gap: 7px; }
