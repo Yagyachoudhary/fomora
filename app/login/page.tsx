@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { FomoraMascot } from "@/components/FomoraMascot";
+import { BrandParrot } from "@/components/BrandParrot";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -71,7 +72,7 @@ export default function LoginPage() {
     return (
       <div className="min-h-screen flex items-center justify-center px-6 py-12">
         <div className="max-w-md w-full text-center">
-          <div className="flex justify-center"><FomoraMascot size={120} /></div>
+          <div className="flex justify-center"><BrandParrot size={170} /></div>
           <h1 className="serif text-4xl font-black mt-6 leading-tight">Check your email.</h1>
           <p className="text-ink-soft mt-4 leading-relaxed">
             I sent a sign-in code to<br /><strong>{email}</strong>
@@ -178,6 +179,10 @@ export default function LoginPage() {
 
         {/* RIGHT — the form */}
         <div className="login-form-wrap">
+          <div className="login-parrot-wrap">
+            <BrandParrot size={230} />
+          </div>
+
           <div className="login-card">
             <h2 className="login-card-h">Get your Radar</h2>
             <p className="login-card-sub">No password. We email you a six-digit code.</p>
