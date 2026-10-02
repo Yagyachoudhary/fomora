@@ -309,7 +309,6 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 /* top bar */
 .lp-top { display: flex; align-items: center; justify-content: space-between; padding: 22px 0 10px; }
 .lp-top-brand { display: flex; align-items: center; gap: 10px; }
-.lp-top-parrot { mix-blend-mode: multiply; }
 .lp-wordmark { font-family: var(--font-playfair), serif; font-weight: 800; font-size: 25px; color: var(--brand); letter-spacing: -0.01em; }
 .lp-free { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 800; background: var(--leaf); color: #fff; padding: 5px 11px; border-radius: 20px; }
 
@@ -320,7 +319,6 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
   min-height: 66vh;
 }
 .lp-hero-art { display: flex; justify-content: center; }
-.lp-hero-art img, .lp-hero-art > span { mix-blend-mode: multiply; }
 
 .lp-h1 {
   font-family: var(--font-playfair), serif; font-weight: 900;
@@ -443,7 +441,6 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 /* code entry */
 .lp-code-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 24px; }
 .lp-code-inner { max-width: 420px; width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center; }
-.lp-code-inner img, .lp-code-inner > span { mix-blend-mode: multiply; }
 .lp-code-h { font-family: var(--font-playfair), serif; font-weight: 900; font-size: 40px; letter-spacing: -0.03em; margin-top: 18px; }
 .lp-code-sub { color: var(--ink-soft); margin-top: 12px; line-height: 1.55; }
 .lp-code-form { width: 100%; margin-top: 28px; display: grid; gap: 12px; }
@@ -540,25 +537,7 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 
 /* form side */
 .login-form-wrap { position: sticky; top: 48px; }
-/* The supplied logo is a square PNG on a WHITE background with the wordmark
-   baked into the lower third. Two tricks make it sit naturally on cream:
-   - multiply blending drops the white box out against the warm background
-   - a fixed-height window with object-position:top crops the wordmark away,
-     so "Fomora" isn't repeated next to the brandline */
-.login-parrot-wrap {
-  display: flex; justify-content: center;
-  margin-bottom: 18px; position: relative;
-  height: 180px; overflow: hidden;
-}
-.login-parrot-wrap img,
-.login-parrot-wrap > span {
-  mix-blend-mode: multiply;
-  object-fit: cover;
-  object-position: center 8%;
-  height: 230px !important;
-  width: auto !important;
-  max-width: none;
-}
+.login-parrot-wrap { display: flex; justify-content: center; margin-bottom: 18px; }
 .parrot-float { animation: parrotFloat 4s ease-in-out infinite; transform-origin: 50% 90%; }
 @keyframes parrotFloat {
   0%, 100% { transform: translateY(0) rotate(-1.5deg); }
