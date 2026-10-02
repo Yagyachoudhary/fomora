@@ -271,6 +271,87 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 }
 .nav-item svg { width: 19px; height: 19px; stroke-width: 2.2; }
 
+/* ────────────── LOGIN / LANDING ────────────── */
+.login-page { min-height: 100vh; padding: 48px 32px 64px; display: flex; align-items: center; }
+.login-grid {
+  max-width: 1120px; margin: 0 auto; width: 100%;
+  display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 64px; align-items: start;
+}
+
+.login-brandline { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+.login-mascot-sm { display: inline-flex; animation: parrotBob 3s ease-in-out infinite; }
+@keyframes parrotBob {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-6px) rotate(3deg); }
+}
+.login-wordmark { font-family: var(--font-playfair), serif; font-weight: 800; font-size: 26px; color: var(--brand); letter-spacing: -0.01em; }
+.login-free {
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 800;
+  background: var(--leaf); color: #fff; padding: 4px 10px; border-radius: 2px;
+}
+
+.login-h1 {
+  font-family: var(--font-playfair), serif; font-weight: 900;
+  font-size: 58px; line-height: 0.98; letter-spacing: -0.035em; color: var(--ink);
+}
+.login-sub { color: var(--ink-soft); font-size: 17px; line-height: 1.55; margin-top: 18px; max-width: 540px; }
+
+/* quick-scan pointers */
+.login-pointers {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 9px 22px;
+  margin: 26px 0 32px; max-width: 580px;
+}
+.login-pointers li {
+  position: relative; padding-left: 24px;
+  font-size: 13.5px; color: var(--ink); font-weight: 600; line-height: 1.35;
+}
+.login-pointers li::before {
+  content: "✓"; position: absolute; left: 0; top: -1px;
+  color: var(--leaf); font-weight: 900; font-size: 14px;
+}
+
+/* numbered steps */
+.login-steps { display: grid; gap: 18px; max-width: 560px; border-top: 1px solid var(--rule); padding-top: 26px; }
+.login-steps li { display: flex; gap: 16px; align-items: flex-start; }
+.login-step-n {
+  font-family: var(--font-playfair), serif; font-weight: 900; font-size: 22px;
+  color: var(--rule); line-height: 1; min-width: 32px; padding-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+.login-steps strong { display: block; font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+.login-steps span { display: block; font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+
+/* sample result — proof before signup */
+.login-sample { margin-top: 30px; background: #fff; border: 1px solid var(--rule); padding: 18px 20px; max-width: 560px; }
+.login-sample-label { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--brand); font-weight: 800; margin-bottom: 10px; }
+.login-sample-row { display: flex; gap: 20px; align-items: flex-start; }
+.login-sample-name { font-family: var(--font-playfair), serif; font-weight: 800; font-size: 19px; }
+.login-sample-verdict { font-family: var(--font-playfair), serif; font-style: italic; font-size: 14.5px; color: var(--ink); margin-top: 5px; line-height: 1.4; }
+.login-sample-who { font-size: 11px; color: var(--muted); margin-top: 7px; letter-spacing: 0.04em; }
+.login-sample-score {
+  font-family: var(--font-playfair), serif; font-weight: 900; font-size: 46px;
+  color: var(--muted); line-height: 0.9; margin-left: auto; font-variant-numeric: tabular-nums;
+}
+
+/* form side */
+.login-form-wrap { position: sticky; top: 48px; }
+.login-card { background: #fff; border: 1px solid var(--rule); padding: 30px 28px; box-shadow: 0 8px 32px rgba(26,23,20,0.07); }
+.login-card-h { font-family: var(--font-playfair), serif; font-weight: 800; font-size: 28px; letter-spacing: -0.02em; }
+.login-card-sub { color: var(--muted); font-size: 13.5px; margin-top: 6px; }
+.login-trust { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--rule); display: grid; gap: 7px; }
+.login-trust li { position: relative; padding-left: 18px; font-size: 12.5px; color: var(--ink-soft); }
+.login-trust li::before { content: "✓"; position: absolute; left: 0; color: var(--leaf); font-weight: 800; }
+.login-foot { font-size: 11.5px; color: var(--muted); margin-top: 18px; line-height: 1.5; text-align: center; }
+
+@media (max-width: 900px) {
+  .login-page { padding: 32px 20px 48px; align-items: flex-start; }
+  .login-grid { grid-template-columns: 1fr; gap: 36px; }
+  .login-h1 { font-size: 40px; }
+  .login-sub { font-size: 15.5px; }
+  .login-pointers { grid-template-columns: 1fr; }
+  .login-form-wrap { position: static; }
+}
+
 /* ── Form input ── */
 .input { width: 100%; padding: 16px 18px; background: #fff; border: 1px solid var(--rule); font-size: 15px; font-family: inherit; color: var(--ink); outline: none; }
 .input:focus { border-color: var(--brand); }

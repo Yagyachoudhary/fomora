@@ -31,11 +31,49 @@ const NOISE_PATTERN =
 const OPS_PATTERN =
   /\b(status (?:page|report|update)|outage|incident|degraded|downtime|post-?mortem|scheduled maintenance|is down|elevated (?:errors|error rates?)|service disruption)\b/i;
 
+// Commentary about a thing, rather than the thing itself. These trend well on HN
+// and are not launches — "Discussion of MCP architecture" is not an MCP release.
+const COMMENTARY_PATTERN =
+  /\b(discussion of|critique|a critique|retrospective|thoughts on|a look at|lessons (?:from|learned)|what i learned|deep dive into|explained|understanding|the case (?:for|against)|problem with|why .* (?:fails|failed|is wrong)|reflections?)\b/i;
+
 // Status subdomains never carry launches.
 const OPS_URL_PATTERN = /(^|\/\/|\.)status\.[a-z0-9-]+\./i;
 
 function isNoise(title: string, url = "") {
-  return NOISE_PATTERN.test(title) || OPS_PATTERN.test(title) || OPS_URL_PATTERN.test(url);
+  return (
+    NOISE_PATTERN.test(title) ||
+    OPS_PATTERN.test(title) ||
+    COMMENTARY_PATTERN.test(title) ||
+    OPS_URL_PATTERN.test(url)
+  );
+}
+
+/**
+ * Collapse Hugging Face model families. HF is full of forks, quantizations and
+ * remixes of one base model — "vdn-minimax-h3", "Minimax-H3-hybrid-models" and
+ * "Minimax-h3_Singularity" are three repos for the same underlying release and
+ * should not occupy three feed slots.
+ *
+ * Two names are treated as the same family if they share two or more meaningful
+ * tokens. Keeps whichever has the most likes.
+ */
+function dedupeModelFamilies(items: RawLaunch[]): RawLaunch[] {
+  const tokenize = (s: string) =>
+    s.toLowerCase().split(/[^a-z0-9]+/).filter(t => t.length > 1 && !/^(ai|ml|the|model|models|v\d+)$/.test(t));
+
+  const ranked = [...items].sort((a, b) => b.points - a.points);
+  const kept: { item: RawLaunch; tokens: Set<string> }[] = [];
+
+  for (const item of ranked) {
+    const toks = new Set(tokenize(item.title));
+    const isVariant = kept.some(k => {
+      let shared = 0;
+      for (const t of toks) if (k.tokens.has(t)) shared += 1;
+      return shared >= 2;
+    });
+    if (!isVariant) kept.push({ item, tokens: toks });
+  }
+  return kept.map(k => k.item);
 }
 
 const UA = "Mozilla/5.0 (compatible; FomoraBot/1.0; +https://fomora.vercel.app)";
@@ -256,7 +294,8 @@ export async function fetchReddit(subs: string[] = DEFAULT_SUBS, minScore = 80):
     })
   );
 
-  return results;
+  // Collapse forks and variants, then cap so one hot model family can't flood.
+  return dedupeModelFamilies(results).slice(0, 12);
 }
 
 /* ────────────────────────── Combine ────────────────────────── */
