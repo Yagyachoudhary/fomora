@@ -271,7 +271,212 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 }
 .nav-item svg { width: 19px; height: 19px; stroke-width: 2.2; }
 
-/* ────────────── LOGIN / LANDING ────────────── */
+/* ══════════════ LANDING / LOGIN ══════════════ */
+
+/* Chunky button — rounded, weighty, with a darker lip underneath so it reads
+   as a physical object. Borrowed from Duolingo's button language. */
+.btn-chunky {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--brand); color: #fff;
+  font-family: inherit; font-size: 15px; font-weight: 800;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 17px 34px; border: 0; border-radius: 14px;
+  box-shadow: 0 4px 0 var(--brand-deep);
+  cursor: pointer; transition: transform .08s ease, box-shadow .08s ease, background .15s;
+  white-space: nowrap;
+}
+.btn-chunky:hover:not(:disabled) { background: #e04636; }
+.btn-chunky:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--brand-deep); }
+.btn-chunky:disabled { background: var(--rule); color: var(--muted); box-shadow: 0 4px 0 #c9c2b5; cursor: not-allowed; }
+
+/* One spacing scale and two surfaces only: cream page, white card.
+   Anything else reads as inconsistent. */
+.lp {
+  --lp-section: 88px;      /* vertical gap between every section */
+  --lp-radius: 18px;       /* every card */
+  --lp-card-pad: 28px;
+  max-width: 1080px; margin: 0 auto; padding: 0 32px 96px;
+}
+.lp section { padding: 0; margin: 0 0 var(--lp-section); }
+.lp section:last-of-type { margin-bottom: 0; }
+.lp-card-surface {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: var(--lp-radius);
+  padding: var(--lp-card-pad);
+}
+
+/* top bar */
+.lp-top { display: flex; align-items: center; justify-content: space-between; padding: 22px 0 10px; }
+.lp-top-brand { display: flex; align-items: center; gap: 10px; }
+.lp-top-parrot { mix-blend-mode: multiply; }
+.lp-wordmark { font-family: var(--font-playfair), serif; font-weight: 800; font-size: 25px; color: var(--brand); letter-spacing: -0.01em; }
+.lp-free { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 800; background: var(--leaf); color: #fff; padding: 5px 11px; border-radius: 20px; }
+
+/* hero — generous, two columns, art first on desktop */
+.lp-hero {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 64px; align-items: center;
+  min-height: 66vh;
+}
+.lp-hero-art { display: flex; justify-content: center; }
+.lp-hero-art img, .lp-hero-art > span { mix-blend-mode: multiply; }
+
+.lp-h1 {
+  font-family: var(--font-playfair), serif; font-weight: 900;
+  font-size: clamp(40px, 5vw, 64px); line-height: 0.97;
+  letter-spacing: -0.035em; color: var(--ink);
+}
+.lp-lede { color: var(--ink-soft); font-size: 18px; line-height: 1.55; margin-top: 20px; max-width: 460px; }
+
+.lp-form { display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap; }
+.lp-input {
+  flex: 1; min-width: 220px; padding: 16px 18px;
+  background: #fff; border: 2px solid var(--rule); border-radius: 14px;
+  font-size: 16px; font-family: inherit; color: var(--ink); outline: none;
+  transition: border-color .15s;
+}
+.lp-input:focus { border-color: var(--brand); }
+.lp-input::placeholder { color: var(--muted); }
+.lp-microcopy { font-size: 13px; color: var(--muted); margin-top: 14px; }
+.lp-err { color: var(--brand); font-size: 13.5px; margin-top: 10px; font-weight: 600; }
+
+/* coverage strip — horizontally scrollable on small screens, like Duolingo's flags */
+.lp-cats {
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+  padding: 20px 0; margin: 0 0 var(--lp-section);
+  background: transparent;
+}
+.lp-cats-scroll {
+  display: flex; gap: 30px; align-items: center;
+  justify-content: center; flex-wrap: wrap;
+}
+.lp-cat {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  font-weight: 800; color: var(--ink-soft); white-space: nowrap;
+}
+.lp-cat-ico { font-size: 17px; line-height: 1; }
+
+@media (max-width: 900px) {
+  .lp-cats { margin-bottom: 48px; }
+  .lp-cats-scroll {
+    flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start;
+    gap: 22px; padding: 0 20px;
+    scrollbar-width: none; -ms-overflow-style: none;
+  }
+  .lp-cats-scroll::-webkit-scrollbar { display: none; }
+}
+
+/* how it works */
+.lp-how { text-align: center; }
+.lp-h2 { font-family: var(--font-playfair), serif; font-weight: 800; font-size: 36px; letter-spacing: -0.02em; margin-bottom: 40px; }
+.lp-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; text-align: left; }
+.lp-step {
+  background: #fff; border: 1px solid var(--rule);
+  border-radius: var(--lp-radius); padding: var(--lp-card-pad);
+}
+.lp-step-n {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--leaf); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-playfair), serif; font-weight: 900; font-size: 19px;
+  margin-bottom: 16px;
+}
+.lp-step h3 { font-family: var(--font-playfair), serif; font-size: 21px; font-weight: 800; margin-bottom: 7px; }
+.lp-step p { color: var(--ink-soft); font-size: 14px; line-height: 1.55; }
+
+/* proof */
+.lp-proof { text-align: center; }
+.lp-proof-card {
+  background: #fff; border: 1px solid var(--rule);
+  border-radius: var(--lp-radius); padding: var(--lp-card-pad);
+  max-width: 640px; margin: 0 auto; text-align: left;
+}
+.lp-proof-label { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--brand); font-weight: 800; margin-bottom: 12px; }
+.lp-proof-row { display: flex; gap: 24px; align-items: flex-start; }
+.lp-proof-name { font-family: var(--font-playfair), serif; font-weight: 800; font-size: 21px; }
+.lp-proof-verdict { font-family: var(--font-playfair), serif; font-style: italic; font-size: 15.5px; margin-top: 7px; line-height: 1.45; }
+.lp-proof-who { font-size: 11.5px; color: var(--muted); margin-top: 9px; }
+.lp-proof-score { font-family: var(--font-playfair), serif; font-weight: 900; font-size: 54px; color: var(--muted); line-height: .9; margin-left: auto; font-variant-numeric: tabular-nums; }
+.lp-proof-note { color: var(--ink-soft); font-size: 15.5px; line-height: 1.6; max-width: 560px; margin: 26px auto 0; }
+
+/* trust + bottom CTA */
+.lp-trust { text-align: center; }
+.lp-trust-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 44px; }
+.lp-trust-grid strong { display: block; font-family: var(--font-playfair), serif; font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+.lp-trust-grid span { display: block; font-size: 13px; color: var(--muted); line-height: 1.45; }
+.lp-bottom-cta { font-size: 16px; padding: 19px 44px; }
+
+/* maker credit */
+.lp-maker-card {
+  display: flex; gap: 22px; align-items: flex-start;
+  background: #fff; border: 1px solid var(--rule);
+  border-radius: var(--lp-radius); padding: var(--lp-card-pad);
+  max-width: 640px; margin: 0 auto; text-align: left;
+}
+.lp-maker-avatar {
+  width: 62px; height: 62px; flex-shrink: 0; border-radius: 50%;
+  background: var(--leaf); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-playfair), serif; font-weight: 900; font-size: 23px;
+  letter-spacing: 0.02em;
+}
+.lp-maker-label { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--brand); font-weight: 800; }
+.lp-maker-name { font-family: var(--font-playfair), serif; font-weight: 800; font-size: 24px; margin-top: 4px; letter-spacing: -0.01em; }
+.lp-maker-note { color: var(--ink-soft); font-size: 14.5px; line-height: 1.6; margin-top: 10px; }
+.lp-maker-link {
+  display: inline-block; margin-top: 14px;
+  font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 800;
+  color: var(--ink); border-bottom: 2px solid var(--brand); padding-bottom: 2px;
+}
+.lp-maker-link:hover { color: var(--brand); }
+
+.lp-foot { font-size: 12px; color: var(--muted); margin-top: 32px; line-height: 1.6; text-align: center; }
+.lp-foot a { color: var(--ink-soft); font-weight: 700; border-bottom: 1px solid var(--rule); }
+.lp-foot a:hover { color: var(--brand); border-color: var(--brand); }
+
+@media (max-width: 900px) {
+  .lp-maker-card { flex-direction: column; gap: 16px; padding: 24px 22px; }
+}
+
+/* code entry */
+.lp-code-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 24px; }
+.lp-code-inner { max-width: 420px; width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center; }
+.lp-code-inner img, .lp-code-inner > span { mix-blend-mode: multiply; }
+.lp-code-h { font-family: var(--font-playfair), serif; font-weight: 900; font-size: 40px; letter-spacing: -0.03em; margin-top: 18px; }
+.lp-code-sub { color: var(--ink-soft); margin-top: 12px; line-height: 1.55; }
+.lp-code-form { width: 100%; margin-top: 28px; display: grid; gap: 12px; }
+.lp-code-input {
+  width: 100%; padding: 18px; text-align: center;
+  font-size: 26px; font-weight: 700; letter-spacing: 0.3em;
+  background: #fff; border: 2px solid var(--rule); border-radius: 14px;
+  font-family: inherit; color: var(--ink); outline: none;
+}
+.lp-code-input:focus { border-color: var(--brand); }
+.lp-code-actions { display: flex; justify-content: space-between; width: 100%; margin-top: 22px; }
+.lp-code-actions button {
+  background: none; border: 0; cursor: pointer;
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  font-weight: 800; color: var(--muted); font-family: inherit;
+}
+.lp-code-actions button:hover:not(:disabled) { color: var(--brand); }
+.lp-code-actions button:disabled { opacity: .4; cursor: default; }
+
+@media (max-width: 900px) {
+  .lp { --lp-section: 56px; --lp-card-pad: 22px; padding: 0 20px 64px; }
+  .lp-hero { grid-template-columns: 1fr; gap: 24px; min-height: auto; text-align: center; }
+  .lp-hero-art { order: -1; }
+  .lp-hero-art img, .lp-hero-art > span { width: 260px !important; }
+  .lp-lede { margin-left: auto; margin-right: auto; }
+  .lp-form { justify-content: center; }
+  .lp-steps { grid-template-columns: 1fr; gap: 18px; }
+  .lp-trust-grid { grid-template-columns: 1fr 1fr; gap: 22px; }
+  .lp-proof-row { flex-direction: column; gap: 10px; }
+  .lp-proof-score { margin-left: 0; }
+}
+
+/* ────────────── (legacy login styles, kept for the old markup) ────────────── */
 .login-page { min-height: 100vh; padding: 48px 32px 64px; display: flex; align-items: center; }
 .login-grid {
   max-width: 1120px; margin: 0 auto; width: 100%;

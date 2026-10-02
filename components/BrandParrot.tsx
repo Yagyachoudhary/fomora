@@ -3,26 +3,35 @@ import { useState } from "react";
 import { FomoraMascot } from "./FomoraMascot";
 
 /**
- * The full-colour Fomora parrot.
+ * The Fomora parrot.
  *
- * Uses /parrot.png from the public folder when it exists, and falls back to the
- * hand-built SVG mascot if the file is missing or fails to load — so the page
- * never renders a broken image, even before the asset is added.
+ * Defaults to the SVG mascot because it has NO background — it composites
+ * cleanly onto cream, white or dark, at any size, the way Duolingo's flat owl
+ * does. The supplied PNG has a white box baked in, which needs blend-mode
+ * trickery and still tints the colours.
+ *
+ * Pass `usePng` once you have a transparent, wordmark-free export at
+ * /parrot.png — then it switches over with an automatic SVG fallback.
  */
 export function BrandParrot({
   size = 260,
   animate = true,
+  usePng = false,
   className = ""
 }: {
   size?: number;
   animate?: boolean;
+  usePng?: boolean;
   className?: string;
 }) {
   const [failed, setFailed] = useState(false);
 
-  if (failed) {
+  if (!usePng || failed) {
     return (
-      <span className={`${animate ? "parrot-float" : ""} ${className}`} style={{ display: "inline-flex" }}>
+      <span
+        className={`${animate ? "parrot-float" : ""} ${className}`}
+        style={{ display: "inline-flex", lineHeight: 0 }}
+      >
         <FomoraMascot size={size} />
       </span>
     );
