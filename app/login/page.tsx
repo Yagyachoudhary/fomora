@@ -203,8 +203,16 @@ export default function LoginPage() {
           </div>
 
           <p className="login-foot">
-            Built by an independent maker. Sources include Hacker News,
-            Product Hunt and Hugging Face.
+            Built by{" "}
+            <a
+              href="https://www.linkedin.com/in/yagya-choudhary-162251ab/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="login-foot-link"
+            >
+              Yagya Choudhary
+            </a>
+            . Launches sourced from Hacker News, Product Hunt and Hugging Face.
           </p>
         </div>
       </div>
