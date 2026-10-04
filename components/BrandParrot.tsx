@@ -32,7 +32,7 @@ export function BrandParrot({
         className={`${animate ? "parrot-float" : ""} ${className}`}
         style={{ display: "inline-flex", lineHeight: 0 }}
       >
-        <FomoraMascot size={size} />
+        <FomoraMascot size={size} animated={animate} />
       </span>
     );
   }

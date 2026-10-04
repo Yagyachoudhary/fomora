@@ -39,14 +39,25 @@ Score EVERY launch for THIS specific user. Return ONLY a JSON array — no prose
 
 [{"index":0,"fomo_score":<0-100>,"verdict":"<one sentence, max 20 words>","why_you":"<2 sentences referencing their role/industry/interests>","ignore_if":"<one short sentence>"}, ...]
 
-SCORING — weight heavily on personal relevance:
+SCORING FACTORS
 - User Relevance (40%): does this map to their role, industry, and stated interests?
-- Market Momentum (25%): adoption velocity and real traction.
+- Significance of the release (25%): a frontier-lab model or a new open standard is categorically bigger news than a small indie tool, even when the one-line description is brief. Weigh WHO shipped it. OpenAI, Anthropic, Google, Meta, Mistral and similar releases are major by default.
 - Industry Impact (15%): does it reshape THEIR industry specifically?
-- Viral Adoption (10%): real usage vs. demo theater.
+- Real adoption (10%): genuine usage versus demo theatre.
 - Early Opportunity (10%): reward being early to a real trend.
 
-BE DECISIVE. A developer infrastructure tool should score under 40 for a marketer or designer. A design tool should score under 40 for a backend engineer. Spread your scores across the full 0-100 range — if everything lands between 70 and 95, you are being useless. Most launches are irrelevant to most people; say so.
+CALIBRATION — use these anchors, and use the WHOLE range:
+- 90-100  Must know this week. Directly changes how this person works, or a landmark release in their field.
+- 75-89   Worth knowing. Clearly touches their work; they'd want it on their radar.
+- 50-74   Context only. Peripheral to them — interesting background, not actionable.
+- 25-49   Safely ignore. Belongs to a different discipline.
+- 0-24    Irrelevant to this person entirely.
+
+Two failure modes to avoid, in both directions:
+1. CLUSTERING. If most of your scores land between 65 and 80, you have not discriminated and the output is useless. Genuinely major news must reach the 90s. Genuinely irrelevant news must fall below 40.
+2. FLATTERING. Do not inflate a minor tool to 70 to seem useful. Most launches are irrelevant to most people — say so plainly.
+
+A thin description is NOT a reason to score low. Judge the underlying release, using who shipped it and its category, not the quality of the blurb.
 
 Return ONLY the JSON array.`;
 
@@ -60,12 +71,30 @@ export type FeedScore = {
 
 export async function scoreFeedBatch(
   profile: Profile,
-  launches: { name: string; description: string | null; category: string | null }[]
+  launches: {
+    name: string;
+    description: string | null;
+    category: string | null;
+    source?: string | null;
+    base_momentum?: number | null;
+  }[]
 ): Promise<FeedScore[]> {
   if (launches.length === 0) return [];
 
+  // Source and momentum are passed through deliberately: without them the model
+  // can't tell a frontier-lab release from a hobby project, because both arrive
+  // as one short line of text.
   const list = launches
-    .map((l, i) => `${i}. ${l.name} [${l.category ?? "Uncategorized"}] — ${l.description ?? "no description"}`)
+    .map((l, i) => {
+      const bits = [
+        `${i}. ${l.name}`,
+        `[${l.category ?? "Uncategorized"}]`,
+        l.source ? `(via ${l.source})` : "",
+        typeof l.base_momentum === "number" ? `(buzz ${l.base_momentum}/100)` : "",
+        `— ${l.description ?? "no description"}`
+      ];
+      return bits.filter(Boolean).join(" ");
+    })
     .join("\n");
 
   const userMessage = `USER PROFILE

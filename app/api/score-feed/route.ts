@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     // never appear in the Radar at all — the source was silently filtered out.
     const { data: launches } = await supabase
       .from("launches")
-      .select("id, name, description, category, source")
+      .select("id, name, description, category, source, base_momentum")
       .neq("category", "System")
       .order("created_at", { ascending: false })
       .limit(60);
@@ -65,7 +65,9 @@ export async function POST(req: Request) {
       todo.map(l => ({
         name: l.name as string,
         description: l.description as string | null,
-        category: l.category as string | null
+        category: l.category as string | null,
+        source: l.source as string | null,
+        base_momentum: l.base_momentum as number | null
       }))
     );
 

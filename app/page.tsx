@@ -5,6 +5,7 @@ import { BrandHeader } from "@/components/BrandHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { PersonalizeFeed } from "@/components/PersonalizeFeed";
 import { LaunchIcon } from "@/components/LaunchIcon";
+import { ScoreFeedback } from "@/components/ScoreFeedback";
 import type { Launch, UserLaunch } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -56,7 +57,7 @@ export default async function RadarHomePage() {
   const { data: rows } = await supabase
     .from("launches")
     .select(`id, url, name, source, category, description, velocity, signal_badge, base_momentum, created_at,
-             user_launches ( fomo_score, status, ai_analysis )`)
+             user_launches ( fomo_score, status, ai_analysis, score_feedback )`)
     // Fetch by RECENCY, then rank by personalized score below. Ordering the
     // fetch by base_momentum meant sources without vote counts (Product Hunt is
     // a flat 60) never entered the candidate pool, so they could never appear
@@ -80,7 +81,8 @@ export default async function RadarHomePage() {
       personalized: !!ul?.fomo_score,
       status: ul?.status ?? "unseen",
       verdict: analysis?.verdict ?? null,
-      ignore_reason: analysis?.ignore_if ?? null
+      ignore_reason: analysis?.ignore_if ?? null,
+      score_feedback: (ul as { score_feedback?: string | null })?.score_feedback ?? null
     };
   });
 
@@ -244,6 +246,7 @@ export default async function RadarHomePage() {
                     </span>
                   )}
                   {r.velocity && <span className="badge badge-muted">⚡ {r.velocity}</span>}
+                  <ScoreFeedback launchId={r.id} initial={r.score_feedback} />
                   <Link href={`/analyze?url=${encodeURIComponent(r.url)}`} className="deeper ml-auto">
                     Analyze deeper →
                   </Link>

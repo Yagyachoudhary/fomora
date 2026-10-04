@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { BrandParrot } from "@/components/BrandParrot";
+import { HeroDemo } from "@/components/HeroDemo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -115,7 +116,7 @@ export default function LoginPage() {
       {/* HERO — one idea, lots of air */}
       <section className="lp-hero">
         <div className="lp-hero-art">
-          <BrandParrot size={420} />
+          <HeroDemo />
         </div>
 
         <div className="lp-hero-copy">
