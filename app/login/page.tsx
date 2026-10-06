@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { BrandParrot } from "@/components/BrandParrot";
 import { HeroDemo } from "@/components/HeroDemo";
+import { CATEGORY_ICONS, CATEGORY_ORDER } from "@/components/CategoryIcons";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -49,7 +50,7 @@ export default function LoginPage() {
       setBusy(false);
       setErr(
         error.message.toLowerCase().includes("expired")
-          ? "That code didn't work — it may have expired. Request a new one."
+          ? "That code didn't work. It may have expired, so request a new one."
           : "That code wasn't accepted. Double-check every digit, or request a new one."
       );
       return;
@@ -124,7 +125,7 @@ export default function LoginPage() {
             Stop reading every<br />AI launch.
           </h1>
           <p className="lp-lede">
-            Fomora scores every release against what <strong>you</strong> actually do —
+            Fomora scores every release against what <strong>you</strong> actually do,
             then tells you to try it, watch it, or ignore it.
           </p>
 
@@ -147,22 +148,9 @@ export default function LoginPage() {
           thing?" at a glance, with no copy to read. */}
       <div className="lp-cats">
         <div className="lp-cats-scroll">
-          {[
-            ["🖼️", "Image AI"],
-            ["🎬", "Video AI"],
-            ["🎙️", "Voice AI"],
-            ["💻", "AI Coding"],
-            ["🤖", "Agents"],
-            ["🎵", "Music AI"],
-            ["🎨", "Design Tools"],
-            ["✍️", "Writing AI"],
-            ["🔍", "AI Search"],
-            ["🧊", "3D & Animation"],
-            ["⚙️", "AI Infra"],
-            ["🔓", "Open Source"]
-          ].map(([icon, label]) => (
+          {CATEGORY_ORDER.map(label => (
             <span className="lp-cat" key={label}>
-              <span className="lp-cat-ico">{icon}</span>
+              <span className="lp-cat-ico">{CATEGORY_ICONS[label]}</span>
               {label}
             </span>
           ))}
@@ -176,7 +164,7 @@ export default function LoginPage() {
           <div className="lp-step">
             <div className="lp-step-n">1</div>
             <h3>Tell us what you do</h3>
-            <p>Three questions, twenty seconds. Designer, founder, analyst, artist — whatever you are.</p>
+            <p>Three questions, twenty seconds. Designer, founder, analyst, artist, whatever you are.</p>
           </div>
           <div className="lp-step">
             <div className="lp-step-n">2</div>
@@ -199,7 +187,7 @@ export default function LoginPage() {
             <div>
               <div className="lp-proof-name">Claude Code</div>
               <div className="lp-proof-verdict">
-                &ldquo;Skip this unless you&apos;re building custom tools yourself — it&apos;s a
+                &ldquo;Skip this unless you&apos;re building custom tools yourself. It&apos;s a
                 developer workflow accelerator, not a design asset.&rdquo;
               </div>
               <div className="lp-proof-who">scored for a Designer in E-commerce</div>
@@ -223,7 +211,7 @@ export default function LoginPage() {
         </div>
 
         <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="btn-chunky lp-bottom-cta">
-          Get started — it&apos;s free
+          Get started, it&apos;s free
         </button>
       </section>
 

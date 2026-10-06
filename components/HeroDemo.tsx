@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { FomoraMascot } from "./FomoraMascot";
+import { toneClass } from "@/lib/score-tone";
 
 /**
  * Live hero demo.
@@ -78,12 +79,12 @@ export function HeroDemo() {
                 <div className="hd-name">{r.name}</div>
                 <div className="hd-bar">
                   <span
-                    className={r.score < 50 ? "hd-fill is-low" : "hd-fill"}
+                    className={`hd-fill ${toneClass(r.score)}`}
                     style={{ width: mounted ? `${r.score}%` : "0%" }}
                   />
                 </div>
               </div>
-              <div className={r.score < 50 ? "hd-score is-low" : "hd-score"}>{r.score}</div>
+              <div className={`hd-score ${toneClass(r.score)}`}>{r.score}</div>
             </div>
           ))}
         </div>

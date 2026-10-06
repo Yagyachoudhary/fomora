@@ -6,6 +6,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { PersonalizeFeed } from "@/components/PersonalizeFeed";
 import { LaunchIcon } from "@/components/LaunchIcon";
 import { ScoreFeedback } from "@/components/ScoreFeedback";
+import { toneClass } from "@/lib/score-tone";
 import type { Launch, UserLaunch } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -219,7 +220,7 @@ export default async function RadarHomePage() {
           )}
 
           {top.map((r, idx) => (
-            <article key={r.id} className={`launch ${(r.fomo_score ?? 0) < 60 ? "is-low" : ""}`}>
+            <article key={r.id} className={`launch ${toneClass(r.fomo_score)}`}>
               <div className="launch-rank">{String(idx + 1).padStart(2, "0")}</div>
 
               <div>

@@ -180,11 +180,20 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
   color: var(--muted); font-weight: 700; margin-top: 3px;
 }
 .fomo-bar { height: 3px; background: var(--rule); position: relative; margin-top: 8px; }
-.fomo-bar::before { content: ""; position: absolute; right: 0; top: 0; height: 100%; background: var(--brand); width: var(--w, 80%); }
+.fomo-bar::before {
+  content: ""; position: absolute; right: 0; top: 0; height: 100%;
+  background: var(--tone, var(--brand)); width: var(--w, 80%);
+}
 
-/* low scores read muted, not urgent */
-.launch.is-low .fomo-num { color: var(--muted); }
-.launch.is-low .fomo-bar::before { background: var(--muted); }
+/* ── Score tone ──
+   Green = act on it, amber = context only, red = skip. Bands live in
+   lib/score-tone.ts; these two custom properties are the only place the
+   colours are named, so both the feed and the hero demo stay in step. */
+.tone-high { --tone: var(--leaf); }
+.tone-mid  { --tone: #D98F2B; }
+.tone-low  { --tone: var(--brand); }
+
+.launch .fomo-num { color: var(--tone, var(--brand)); }
 
 .launch-footer {
   display: flex; align-items: center; gap: 14px;
@@ -366,13 +375,16 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 .hd-cat { font-size: 8.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--brand); font-weight: 800; }
 .hd-name { font-family: var(--font-playfair), serif; font-weight: 800; font-size: 15.5px; margin-top: 1px; }
 .hd-bar { height: 4px; background: var(--rule); border-radius: 2px; margin-top: 7px; overflow: hidden; }
-.hd-fill { display: block; height: 100%; background: var(--brand); border-radius: 2px; transition: width 1s cubic-bezier(.2,.8,.2,1); }
-.hd-fill.is-low { background: var(--muted); }
+.hd-fill {
+  display: block; height: 100%; border-radius: 2px;
+  background: var(--tone, var(--brand));
+  transition: width 1s cubic-bezier(.2,.8,.2,1), background-color .4s ease;
+}
 .hd-score {
   font-family: var(--font-playfair), serif; font-weight: 900; font-size: 26px;
-  color: var(--brand); text-align: right; line-height: 1; font-variant-numeric: tabular-nums;
+  color: var(--tone, var(--brand)); text-align: right; line-height: 1;
+  font-variant-numeric: tabular-nums; transition: color .4s ease;
 }
-.hd-score.is-low { color: var(--muted); }
 .hd-foot {
   border-top: 1px solid var(--rule); margin-top: 6px; padding-top: 12px;
   font-size: 11px; color: var(--muted); text-align: center;
@@ -423,7 +435,12 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
   font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
   font-weight: 800; color: var(--ink-soft); white-space: nowrap;
 }
-.lp-cat-ico { font-size: 17px; line-height: 1; }
+/* Line icons, not emoji — they inherit the label's ink via currentColor
+   and carry one accent each. Sized a touch above the cap height so the
+   row reads as icon-then-word rather than two competing weights. */
+.lp-cat-ico { display: inline-flex; color: var(--ink); }
+.lp-cat-ico svg { width: 22px; height: 22px; display: block; }
+.lp-cat:hover .lp-cat-ico { color: var(--brand); }
 
 @media (max-width: 900px) {
   .lp-cats { margin-bottom: 48px; }
@@ -619,60 +636,73 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
   50%      { transform: translateY(-14px) rotate(1.2deg); }
 }
 
-/* everything below targets the inline SVG's parts */
-.m-svg { overflow: visible; }
+/* Everything below targets parts of the inline SVG, so every origin is
+   expressed in that SVG's own 330×310 user space via transform-box. If the
+   mascot's viewBox ever changes, these numbers must change with it. */
+.fomora-parrot { overflow: visible; }
 
+/* Body pivots at the feet, so the bob reads as weight shifting on the
+   branch rather than the whole bird sliding. */
 .m-body {
   animation: parrotBob 2.3s ease-in-out infinite;
   transform-box: view-box;
-  transform-origin: 120px 200px;
+  transform-origin: 165px 276px;
 }
 @keyframes parrotBob {
   0%, 100% { transform: translateY(0) scaleY(1); }
-  50%      { transform: translateY(-5px) scaleY(1.012); }
+  50%      { transform: translateY(-4px) scaleY(1.012); }
 }
 
+/* Shoulder of the red wing */
 .m-wing {
   animation: parrotFlap 2.3s ease-in-out infinite;
   transform-box: view-box;
-  transform-origin: 166px 116px;
+  transform-origin: 198px 184px;
 }
 @keyframes parrotFlap {
   0%, 100% { transform: rotate(0deg); }
-  45%      { transform: rotate(-17deg); }
-  70%      { transform: rotate(4deg); }
+  45%      { transform: rotate(-14deg); }
+  70%      { transform: rotate(3deg); }
 }
 
 .m-wing-back {
   animation: parrotFlapBack 2.3s ease-in-out infinite;
   transform-box: view-box;
-  transform-origin: 78px 124px;
+  transform-origin: 100px 180px;
 }
 @keyframes parrotFlapBack {
   0%, 100% { transform: rotate(0deg); }
-  45%      { transform: rotate(15deg); }
-  70%      { transform: rotate(-3deg); }
+  45%      { transform: rotate(9deg); }
+  70%      { transform: rotate(-2deg); }
 }
 
 .m-crest {
   animation: parrotCrest 3.7s ease-in-out infinite;
   transform-box: view-box;
-  transform-origin: 120px 68px;
+  transform-origin: 178px 76px;
 }
 @keyframes parrotCrest {
   0%, 100% { transform: rotate(0deg); }
-  50%      { transform: rotate(-4deg); }
+  50%      { transform: rotate(-5deg); }
 }
 
+/* Blink squashes the pupils about their own centre line */
 .m-eyes {
   animation: parrotBlink 6.1s infinite;
   transform-box: view-box;
-  transform-origin: 120px 100px;
+  transform-origin: 165px 145px;
 }
 @keyframes parrotBlink {
   0%, 93%, 100% { transform: scaleY(1); }
   95.5%         { transform: scaleY(0.06); }
 }
+
+/* animated={false} — nav marks, favicons, anywhere motion would nag */
+.fomora-parrot.m-still .m-body,
+.fomora-parrot.m-still .m-wing,
+.fomora-parrot.m-still .m-wing-back,
+.fomora-parrot.m-still .m-crest,
+.fomora-parrot.m-still .m-eyes { animation: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .parrot-float, .login-mascot-sm,
