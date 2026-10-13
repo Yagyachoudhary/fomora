@@ -11,7 +11,16 @@ import type { Launch, UserLaunch } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function RadarHomePage() {
+export default async function RadarHomePage({
+  searchParams
+}: {
+  searchParams?: { cat?: string };
+}) {
+  // ?cat=AI%20Agents turns the Radar into a single-category view. The
+  // "Categories heating up" rows link here — before this they rendered a ↗
+  // arrow that promised navigation and did nothing.
+  const activeCat = typeof searchParams?.cat === "string" ? searchParams.cat : null;
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -90,11 +99,17 @@ export default async function RadarHomePage() {
   // Rank everything, then split. Using a hard score threshold made the feed look
   // empty for users whose scores all landed low — rank-based split always fills both.
   const sorted = [...decorated].sort((a, b) => (b.fomo_score ?? 0) - (a.fomo_score ?? 0));
-  const ignoreIds = new Set(
-    sorted.filter(r => (r.fomo_score ?? 0) < 55).slice(-3).map(r => r.id)
-  );
-  const top = sorted.filter(r => !ignoreIds.has(r.id)).slice(0, 10);
-  const ignore = sorted.filter(r => ignoreIds.has(r.id));
+
+  // In a category view the point is to see everything in that category, so the
+  // "safely skip" split is suspended — a low score is still worth showing when
+  // the user explicitly asked for this category.
+  const ignoreIds = activeCat
+    ? new Set<string>()
+    : new Set(sorted.filter(r => (r.fomo_score ?? 0) < 55).slice(-3).map(r => r.id));
+
+  const pool = activeCat ? sorted.filter(r => r.category === activeCat) : sorted;
+  const top = pool.filter(r => !ignoreIds.has(r.id)).slice(0, activeCat ? 50 : 10);
+  const ignore = activeCat ? [] : sorted.filter(r => ignoreIds.has(r.id));
 
   // Emerging Signals — computed from real launch data, not hardcoded.
   // A category "heats up" based on how many accelerating launches it has and how
@@ -160,7 +175,7 @@ export default async function RadarHomePage() {
         {/* You don't need to pay for this — sits above the ranked feed because
             it answers a different question: not "what matters" but "what are
             you overpaying for". Too valuable to bury under ten launches. */}
-        {freePicks.length > 0 && (
+        {freePicks.length > 0 && !activeCat && (
           <section className="free-section">
             <div className="free-banner">
               <div>
@@ -205,12 +220,26 @@ export default async function RadarHomePage() {
           </section>
         )}
 
-        {/* Top 10 */}
+        {/* Top 10, or every launch in one category when ?cat= is set */}
         <section>
-          <div className="eyebrow">The Top {top.length}</div>
-          <h2 className="section-title">What you should care about</h2>
-          <div className="section-sub">Ranked by personalized FOMO. Not by hype.</div>
+          {activeCat && (
+            <Link href="/" className="cat-back">← All categories</Link>
+          )}
+          <div className="eyebrow">{activeCat ? "Category" : `The Top ${top.length}`}</div>
+          <h2 className="section-title">{activeCat ?? "What you should care about"}</h2>
+          <div className="section-sub">
+            {activeCat
+              ? `${top.length} launch${top.length === 1 ? "" : "es"} tracked · ranked for you`
+              : "Ranked by personalized FOMO. Not by hype."}
+          </div>
           <hr className="divider" />
+
+          {activeCat && top.length === 0 && (
+            <div className="text-center py-16 text-muted">
+              <p className="mb-4">Nothing tracked in {activeCat} yet.</p>
+              <Link href="/" className="btn btn-primary inline-block">Back to your Radar</Link>
+            </div>
+          )}
 
           {top.length === 0 && (
             <div className="text-center py-16 text-muted">
@@ -264,20 +293,24 @@ export default async function RadarHomePage() {
         </section>
 
         {/* Emerging Signals */}
-        {EMERGING.length > 0 && (
+        {EMERGING.length > 0 && !activeCat && (
         <section className="bg-cream-2 p-10 mt-12">
           <div className="eyebrow" style={{ color: "var(--gold)" }}>Emerging Signals</div>
           <h2 className="section-title">Categories heating up</h2>
           <div className="mt-6">
             {EMERGING.map(s => (
-              <div key={s.rank} className="flex items-start gap-4 py-4 border-t border-rule first:border-t-0">
+              <Link
+                key={s.rank}
+                href={`/?cat=${encodeURIComponent(s.name)}`}
+                className="emerging-row flex items-start gap-4 py-4 border-t border-rule first:border-t-0"
+              >
                 <div className="serif italic font-bold text-gold min-w-[40px] text-base">{s.rank}</div>
                 <div className="flex-1">
                   <div className="serif font-extrabold text-2xl">{s.name}</div>
                   <div className="text-ink-soft text-sm mt-1 max-w-3xl">{s.desc}</div>
                 </div>
-                <div className="text-gold text-2xl">↗</div>
-              </div>
+                <div className="text-gold text-2xl emerging-arrow">↗</div>
+              </Link>
             ))}
           </div>
         </section>
