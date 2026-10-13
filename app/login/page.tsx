@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { BrandParrot } from "@/components/BrandParrot";
 import { HeroDemo } from "@/components/HeroDemo";
 import { CATEGORY_ICONS, CATEGORY_ORDER } from "@/components/CategoryIcons";
+import { isNew } from "@/lib/whats-new";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -205,7 +206,10 @@ export default function LoginPage() {
           the Radar pitch lands whole before a second capability enters. */}
       <section className="lp-build">
         <div className="lp-build-copy">
-          <div className="eyebrow">Also inside</div>
+          <div className="eyebrow">
+            Also inside
+            {isNew("build") && <sup className="tag-new">New</sup>}
+          </div>
           <h2 className="lp-h2 lp-build-h">Then go build it.</h2>
           <p>
             Describe what you&apos;re making and roughly how much traffic you expect. Fomora returns

@@ -1,11 +1,12 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { isNew } from "@/lib/whats-new";
 
 const items = [
   { href: "/", label: "Radar", icon: "radar" as const },
   { href: "/analyze", label: "Analyze", icon: "search" as const },
-  { href: "/build", label: "Build", icon: "stack" as const },
+  { href: "/build", label: "Build", icon: "stack" as const, newKey: "build" },
   { href: "/saved", label: "Saved", icon: "bookmark" as const },
   { href: "/profile", label: "Profile", icon: "user" as const }
 ];
@@ -14,12 +15,15 @@ export function BottomNav() {
   const path = usePathname();
   return (
     <nav className="bottom-nav">
-      {items.map(({ href, label, icon }) => {
+      {items.map(({ href, label, icon, newKey }) => {
         const active = href === "/" ? path === "/" : path.startsWith(href);
         return (
           <Link key={href} href={href} className={`nav-item ${active ? "active" : ""}`}>
             <Icon name={icon} />
-            <span>{label}</span>
+            <span>
+              {label}
+              {newKey && isNew(newKey) && <sup className="nav-new">New</sup>}
+            </span>
           </Link>
         );
       })}

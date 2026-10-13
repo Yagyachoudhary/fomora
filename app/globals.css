@@ -621,6 +621,18 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 .lp-proof-score { font-family: var(--font-playfair), serif; font-weight: 900; font-size: 54px; color: var(--muted); line-height: .9; margin-left: auto; font-variant-numeric: tabular-nums; }
 .lp-proof-note { color: var(--ink-soft); font-size: 15.5px; line-height: 1.6; max-width: 560px; margin: 26px auto 0; }
 
+/* ── "New" badges ──
+   Self-expiring: lib/whats-new.ts drops them after 45 days, so they never
+   decay into permanent furniture. Superscript rather than a pill, because the
+   label should sit beside the word without changing the row's height. */
+.tag-new, .nav-new {
+  font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase;
+  font-weight: 900; color: var(--brand); vertical-align: super;
+  margin-left: 4px; line-height: 0;
+}
+.nav-new { font-size: 7px; margin-left: 3px; }
+.nav-item.active .nav-new { color: var(--brand); }
+
 /* Build section on the landing page */
 .lp-build {
   display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;
