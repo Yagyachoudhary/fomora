@@ -201,6 +201,46 @@ export default function LoginPage() {
         </p>
       </section>
 
+      {/* Build — the second job. Deliberately placed after the proof block, so
+          the Radar pitch lands whole before a second capability enters. */}
+      <section className="lp-build">
+        <div className="lp-build-copy">
+          <div className="eyebrow">Also inside</div>
+          <h2 className="lp-h2 lp-build-h">Then go build it.</h2>
+          <p>
+            Describe what you&apos;re making and roughly how much traffic you expect. Fomora returns
+            the stack, what it costs per month, and the volume where the cheap option stops being
+            the right one.
+          </p>
+          <ul className="lp-build-list">
+            <li>Every layer shows the paid default <strong>and</strong> the free alternative</li>
+            <li>Prices carry the date they were last verified, so you can see when they go stale</li>
+            <li>No model guesses at the arithmetic &mdash; the totals are computed, not generated</li>
+          </ul>
+        </div>
+
+        <div className="lp-build-demo">
+          <div className="lp-bd-head">
+            <span>Support chatbot</span>
+            <span className="lp-bd-vol">10k conversations/mo</span>
+          </div>
+          {[
+            { tier: "Budget", model: "GPT-5 nano", cost: "$53", on: true },
+            { tier: "Balanced", model: "GPT-5 mini", cost: "$86", on: false },
+            { tier: "Premium", model: "Gemini 3.8 Flash", cost: "$142", on: false }
+          ].map(t => (
+            <div key={t.tier} className={`lp-bd-row ${t.on ? "is-on" : ""}`}>
+              <span className="lp-bd-tier">{t.tier}</span>
+              <span className="lp-bd-model">{t.model}</span>
+              <span className="lp-bd-cost">{t.cost}<small>/mo</small></span>
+            </div>
+          ))}
+          <div className="lp-bd-foot">
+            <strong>4,600&ndash;54,500</strong> conversations/mo is where model choice starts to matter
+          </div>
+        </div>
+      </section>
+
       {/* Trust */}
       <section className="lp-trust">
         <div className="lp-trust-grid">

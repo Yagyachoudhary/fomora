@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 const items = [
   { href: "/", label: "Radar", icon: "radar" as const },
   { href: "/analyze", label: "Analyze", icon: "search" as const },
+  { href: "/build", label: "Build", icon: "stack" as const },
   { href: "/saved", label: "Saved", icon: "bookmark" as const },
   { href: "/profile", label: "Profile", icon: "user" as const }
 ];
@@ -26,8 +27,17 @@ export function BottomNav() {
   );
 }
 
-function Icon({ name }: { name: "radar" | "search" | "bookmark" | "user" }) {
+function Icon({ name }: { name: "radar" | "search" | "stack" | "bookmark" | "user" }) {
   switch (name) {
+    // Layers — the stack you'd assemble, which is what this tab returns.
+    case "stack":
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
+          <path d="m12 2 9 5-9 5-9-5 9-5Z" />
+          <path d="m3 12 9 5 9-5" />
+          <path d="m3 17 9 5 9-5" />
+        </svg>
+      );
     case "radar":
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
