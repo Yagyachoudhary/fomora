@@ -129,6 +129,15 @@ export const CATEGORY_ICONS: Record<string, React.ReactNode> = {
     </Svg>
   ),
 
+  "Hiring & HR": (
+    <Svg>
+      <circle cx="9.6" cy="8.2" r="3.8" />
+      <path d="M3.2 19.8c0-3.6 2.9-6.5 6.4-6.5 1.4 0 2.8.5 3.9 1.3" />
+      <circle cx="17.6" cy="17.4" r="4.3" fill={GREEN} fillOpacity={0.18} />
+      <path d="M15.7 17.4l1.4 1.4 2.5-2.8" stroke={GREEN} />
+    </Svg>
+  ),
+
   "Open Source": (
     <Svg>
       <circle cx="12" cy="4.6" r="2.5" fill={GREEN} fillOpacity={0.2} />
@@ -152,5 +161,6 @@ export const CATEGORY_ORDER = [
   "AI Search",
   "3D & Animation",
   "AI Infra",
+  "Hiring & HR",
   "Open Source"
 ] as const;

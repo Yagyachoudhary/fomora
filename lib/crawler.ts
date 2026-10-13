@@ -20,11 +20,17 @@ export type EnrichedLaunch = RawLaunch & {
 
 // Keywords that suggest a story is about an AI product/launch rather than commentary.
 const AI_PATTERN =
-  /\b(ai|a\.i\.|llm|llms|gpt|claude|gemini|grok|mistral|deepseek|qwen|agent|agents|agentic|copilot|rag|embedding|embeddings|diffusion|transformer|multimodal|open-?weights|fine-?tun\w+|inference|anthropic|openai|hugging ?face|langchain|mcp|midjourney|stable ?diffusion|flux|runway|sora|veo|firefly|elevenlabs|suno|udio|comfyui|lora|text-?to-?image|text-?to-?video|text-?to-?speech|image ?gen\w*|video ?gen\w*|generative)\b/i;
+  /\b(ai|a\.i\.|llm|llms|gpt|claude|gemini|grok|mistral|deepseek|qwen|agent|agents|agentic|copilot|rag|embedding|embeddings|diffusion|transformer|multimodal|open-?weights|fine-?tun\w+|inference|anthropic|openai|hugging ?face|langchain|mcp|midjourney|stable ?diffusion|flux|runway|sora|veo|firefly|elevenlabs|suno|udio|comfyui|lora|text-?to-?image|text-?to-?video|text-?to-?speech|image ?gen\w*|video ?gen\w*|generative|applicant tracking|hris|hr ?tech|people analytics|talent intelligence|resume screen\w*|candidate (?:sourcing|screening|matching)|interview copilot)\b/i;
 
 // Stories that are usually discussion, showcase, or noise — not launches.
+// NOTE: "feedback", "help" and "question" used to sit here as bare words.
+// Two of them collided with hiring tooling: "interview feedback" and
+// "candidate feedback" are common launch titles, and "AI help desk" is a real
+// product category — all were being silently binned before reaching the
+// classifier. Now scoped to the phrasings that actually signal a forum post.
+// "ask hn" already catches the Ask-HN case on its own.
 const NOISE_PATTERN =
-  /\b(lawsuit|sued|regulation|opinion|why i|i think|rant|essay|is dead|considered harmful|ask hn|my first|i made this|feedback|help|question|workflow share|prompt share|showcase|wallpaper|meme|nsfw)\b/i;
+  /\b(lawsuit|sued|regulation|opinion|why i|i think|rant|essay|is dead|considered harmful|ask hn|my first|i made this|feedback (?:welcome|wanted|please|appreciated)|help me|quick question|workflow share|prompt share|showcase|wallpaper|meme|nsfw)\b/i;
 
 // Operational noise — outages, incidents, status pages. These are not launches,
 // but they trend on HN and were scoring 85+ before this filter existed.
@@ -378,7 +384,7 @@ export async function enrichLaunchesVerbose(
 For EACH numbered item, decide:
 - name: the clean product/company name (not the headline). If it's not really a product, use a short topic name.
 - description: one sentence, max 15 words, plain and factual. No hype adjectives.
-- category: exactly one of "AI Coding", "AI Agents", "AI Infra", "Image AI", "Video AI", "3D & Animation", "Music & Audio AI", "Voice AI", "Writing AI", "Design Tools", "AI Productivity", "AI Search", "Marketing AI", "Data & Analytics", "Open Source AI", "AI Research"
+- category: exactly one of "AI Coding", "AI Agents", "AI Infra", "Image AI", "Video AI", "3D & Animation", "Music & Audio AI", "Voice AI", "Writing AI", "Design Tools", "AI Productivity", "AI Search", "Marketing AI", "Data & Analytics", "Hiring & HR AI", "Open Source AI", "AI Research"
 - velocity: one of "Exploding", "Heating up", "Steady", "Cooling" — infer from the points count (300+ Exploding, 120+ Heating up, 40+ Steady, else Cooling)
 - signal_badge: one of "Paradigm Shift", "High Signal", "Emerging", "Hype"
 - skip: true in any of these cases, otherwise false:
@@ -462,7 +468,7 @@ export async function enrichLaunches(raw: RawLaunch[]): Promise<EnrichedLaunch[]
 For EACH numbered item, decide:
 - name: the clean product/company name (not the headline). If it's not really a product, use a short topic name.
 - description: one sentence, max 15 words, plain and factual. No hype adjectives.
-- category: exactly one of "AI Coding", "AI Agents", "AI Infra", "Image AI", "Video AI", "3D & Animation", "Music & Audio AI", "Voice AI", "Writing AI", "Design Tools", "AI Productivity", "AI Search", "Marketing AI", "Data & Analytics", "Open Source AI", "AI Research"
+- category: exactly one of "AI Coding", "AI Agents", "AI Infra", "Image AI", "Video AI", "3D & Animation", "Music & Audio AI", "Voice AI", "Writing AI", "Design Tools", "AI Productivity", "AI Search", "Marketing AI", "Data & Analytics", "Hiring & HR AI", "Open Source AI", "AI Research"
 - velocity: one of "Exploding", "Heating up", "Steady", "Cooling" — infer from the points count (300+ Exploding, 120+ Heating up, 40+ Steady, else Cooling)
 - signal_badge: one of "Paradigm Shift", "High Signal", "Emerging", "Hype" — be honest, most things are "Emerging"
 - skip: true if this is NOT an AI product/launch/model release — e.g. commentary, a lawsuit, a think-piece, someone showing off their own artwork, or a tutorial

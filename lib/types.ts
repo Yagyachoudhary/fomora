@@ -67,6 +67,10 @@ export const ROLES = [
   // Product & business
   'Product Manager', 'Founder / CEO', 'Marketer', 'Growth / Ops',
   'Finance Professional', 'Investor / VC', 'Consultant',
+  // People — kept as two roles, not one. A recruiter's AI landscape (sourcing,
+  // screening, interview tooling) barely overlaps with People Ops (HRIS,
+  // engagement, L&D, policy), so collapsing them would mis-score both.
+  'HR / People Ops', 'Recruiter / Talent',
   // Technical
   'Engineer', 'Data / Analytics', 'ML Researcher',
   // Creative
@@ -81,7 +85,8 @@ export const INDUSTRIES = [
   'SaaS', 'Fintech', 'E-commerce', 'Healthcare', 'Education',
   'Media & Publishing', 'Advertising', 'Film & TV', 'Music',
   'Gaming', 'Design Studio', 'Art & Illustration', 'Architecture',
-  'Consulting', 'Retail', 'Manufacturing', 'Non-profit', 'AI / ML', 'Other'
+  'Consulting', 'HR & Recruiting', 'Staffing / Agency',
+  'Retail', 'Manufacturing', 'Non-profit', 'AI / ML', 'Other'
 ] as const;
 
 export const DEPTHS = ['Beginner', 'Intermediate', 'Advanced', 'Expert'] as const;
@@ -93,7 +98,8 @@ export const INTERESTS = [
   // Technical
   'AI Coding', 'Agents', 'Infra / MCP', 'Open Source', 'AI Research',
   // Applied
-  'Productivity', 'Search', 'Marketing AI', 'Data & Analytics'
+  'Productivity', 'Search', 'Marketing AI', 'Data & Analytics',
+  'Hiring & HR AI'
 ] as const;
 
 export const TOOLS = [
