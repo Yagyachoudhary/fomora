@@ -78,8 +78,12 @@ export default async function RadarHomePage({
   type Row = Launch & { user_launches: Pick<UserLaunch, "fomo_score" | "status" | "ai_analysis">[] };
   const all = (rows ?? []) as unknown as Row[];
 
-  // Filter out the cron heartbeat
-  const real = all.filter(r => r.category !== "System");
+  // Filter out the cron heartbeat, and anything a user created by analysing a
+  // URL. Those rows live in the same shared table but are one person's lookup,
+  // not a crawled launch — without this they'd surface in everyone's Radar.
+  const real = all.filter(
+    r => r.category !== "System" && r.source !== "User analysis"
+  );
 
   // Decorate with the user's personalized score, fall back to base_momentum.
   const decorated = real.map(r => {

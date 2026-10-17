@@ -103,7 +103,7 @@ export default function BuildClient() {
               className="px-5 py-4 bg-white/5 border border-white/20 text-white text-base placeholder:text-white/40 focus:border-brand focus:outline-none"
               value={industry}
               onChange={e => setIndustry(e.target.value)}
-              placeholder="Industry — e-commerce, healthcare, fintech… (optional)"
+              placeholder="Industry, e-commerce, healthcare, fintech… (optional)"
             />
 
             <div>
@@ -163,7 +163,7 @@ function StackResult({ r }: { r: Result }) {
           </p>
         </div>
         {r.confidence === "low" && (
-          <span className="bs-flag">Closest match — check this is right</span>
+          <span className="bs-flag">Closest match, check this is right</span>
         )}
       </div>
 
@@ -245,22 +245,21 @@ function StackResult({ r }: { r: Result }) {
       {r.crossoverLow !== null && r.crossoverHigh !== null && (
         <div className="bs-threshold">
           <div className="bs-threshold-num">
-            {r.crossoverLow.toLocaleString()}<span>–</span>{r.crossoverHigh.toLocaleString()}
+            {r.crossoverLow.toLocaleString()}<span>to</span>{r.crossoverHigh.toLocaleString()}
           </div>
           <div>
-            <strong>
+            <div className="bs-threshold-lead">
               This is the band where model choice starts to matter.
-            </strong>
+            </div>
             <p>
               Under <strong>{r.crossoverLow.toLocaleString()}</strong> {r.archetype.unitPlural} a month,
-              infrastructure dominates whichever model you pick — so pick the best one and spend your
+              infrastructure dominates whichever model you pick, so pick the best one and spend your
               time elsewhere. Over <strong>{r.crossoverHigh.toLocaleString()}</strong>, even the cheapest
-              model costs more than your whole infrastructure bill, and caching becomes the highest-leverage
-              thing you can do. In between, you&apos;re trading quality against a bill that&apos;s growing
-              but not yet dominant.
+              model costs more than your whole infrastructure bill, and caching becomes your highest-leverage
+              move. In between, you&apos;re trading quality against a bill that is growing but not yet dominant.
             </p>
             <p className="bs-threshold-you">
-              You said {r.unitsPerMonth.toLocaleString()} — {
+              You said {r.unitsPerMonth.toLocaleString()}, which is {
                 r.unitsPerMonth < r.crossoverLow
                   ? "below the band. Use the best model you can; optimising here saves you single-digit dollars."
                   : r.unitsPerMonth > r.crossoverHigh
@@ -316,7 +315,7 @@ function StackResult({ r }: { r: Result }) {
         {r.prices.stale ? (
           <>⚠ Prices last verified {r.prices.verifiedAt} ({r.prices.ageDays} days ago). Treat these as indicative and re-check the vendor pages.</>
         ) : (
-          <>Prices verified {r.prices.verifiedAt}. Token estimates are informed guesses, not measurements — they&apos;re the largest source of error here.</>
+          <>Prices verified {r.prices.verifiedAt}. Token estimates are informed guesses, not measurements. They&apos;re the largest source of error here.</>
         )}
       </div>
     </section>

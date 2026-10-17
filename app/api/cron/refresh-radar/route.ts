@@ -24,7 +24,9 @@ export async function GET(request: Request) {
   );
 
   try {
-    // 1. Pull from Hacker News + Product Hunt + Reddit in parallel (all free, no keys).
+    // 1. Pull from Hacker News, Product Hunt and Hugging Face in parallel
+    //    (all free, no keys). Reddit was dropped: it returns 403 to server-side
+    //    requests on both the .json and .rss endpoints.
     const raw = await fetchAllSources();
     if (raw.length === 0) {
       return NextResponse.json({ ok: true, found: 0, inserted: 0, note: "No AI stories matched." });

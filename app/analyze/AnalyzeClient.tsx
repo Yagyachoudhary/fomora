@@ -48,13 +48,27 @@ export default function AnalyzeClient() {
   }
 
   async function save() {
-    if (!launchId) { setSaved(true); return; }
-    await fetch("/api/save", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ launchId })
-    });
-    setSaved(true);
+    // Previously this set "✓ Saved" and returned when there was no launchId,
+    // so the button reported success for something that was never stored and
+    // would never appear in /saved. Say what actually happened instead.
+    if (!launchId) {
+      setErr("This one couldn't be stored, so there's nothing to save. Try a direct product URL.");
+      return;
+    }
+    try {
+      const res = await fetch("/api/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ launchId })
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Couldn't save that.");
+      }
+      setSaved(true);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Couldn't save that.");
+    }
   }
 
   return (
@@ -115,12 +129,16 @@ export default function AnalyzeClient() {
               <Block label="Ignore if">{analysis.ignore_if}</Block>
             </div>
 
-            <div className="flex gap-3 mt-8 pt-7 border-t border-rule">
-              <button className="btn btn-primary" onClick={save} disabled={saved}>
+            <div className="flex gap-3 mt-8 pt-7 border-t border-rule items-center flex-wrap">
+              <button className="btn btn-primary" onClick={save} disabled={saved || !launchId}>
                 {saved ? "✓ Saved" : "Save to library"}
               </button>
-              <button className="btn" onClick={() => { setAnalysis(null); setInput(""); }}>Analyze another</button>
+              <button className="btn" onClick={() => { setAnalysis(null); setInput(""); setErr(""); }}>Analyze another</button>
+              {!launchId && (
+                <span className="text-muted text-sm">Pasted text can&apos;t be saved. Analyze a URL to keep it.</span>
+              )}
             </div>
+            {err && <p className="text-brand text-sm mt-4">{err}</p>}
           </section>
         )}
       </main>

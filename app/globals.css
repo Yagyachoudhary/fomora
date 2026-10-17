@@ -17,7 +17,18 @@
 }
 
 html, body { background: var(--cream); color: var(--ink); }
-body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoothing: antialiased; padding-bottom: 90px; }
+body {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  padding-bottom: 90px;
+  /* Playfair defaults to OLDSTYLE figures: digits sit at different heights and
+     3/4/5/7/9 drop below the baseline. That's lovely in running prose and looks
+     broken in a price table — "1,341–15,859" reads as a typo rather than a
+     number. Force lining figures document-wide. Elements that need digits to
+     align in a column add `tabular-nums` alongside `lining-nums`, never on its
+     own, because font-variant-numeric replaces the whole inherited value. */
+  font-variant-numeric: lining-nums;
+}
 .serif { font-family: var(--font-playfair), serif; }
 
 /* ── Section labels & headings (editorial) ── */
@@ -37,7 +48,7 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 .saving-num {
   font-family: var(--font-playfair), serif;
   font-size: 44px; font-weight: 900; line-height: 1;
-  letter-spacing: -0.03em; font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em; font-variant-numeric: lining-nums tabular-nums;
 }
 .saving-label {
   font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
@@ -92,7 +103,7 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 .ignore-score {
   font-family: var(--font-playfair), serif; font-size: 26px; font-weight: 800;
   color: var(--muted); text-align: right; line-height: 1;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 .section-title { font-family: var(--font-playfair), serif; font-weight: 800; font-size: 32px; line-height: 1.1; letter-spacing: -0.02em; margin-top: 4px; }
 .section-sub { color: var(--muted); margin-top: 4px; font-size: 13px; }
@@ -145,7 +156,7 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
   color: var(--rule);
   line-height: 1; padding-top: 2px;
   text-align: right;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 .launch:hover .launch-rank { color: var(--brand); }
 
@@ -173,7 +184,7 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
   font-family: var(--font-playfair), serif;
   font-weight: 900; font-size: 42px; color: var(--brand);
   line-height: 0.9; letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 .fomo-label {
   font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
@@ -214,7 +225,7 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 .bv-opt:hover { border-color: rgba(255,255,255,0.45); }
 .bv-opt.is-on { background: var(--brand); border-color: var(--brand); color: #fff; }
 .bv-opt-label { font-size: 13px; font-weight: 700; }
-.bv-opt-hint { font-size: 11px; opacity: 0.7; font-variant-numeric: tabular-nums; }
+.bv-opt-hint { font-size: 11px; opacity: 0.7; font-variant-numeric: lining-nums tabular-nums; }
 @media (max-width: 760px) { .bv-grid { grid-template-columns: repeat(2, 1fr); } }
 
 .bs-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
@@ -246,7 +257,7 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 
 .bs-table { width: 100%; border-collapse: collapse; }
 .bs-table td { padding: 11px 0; border-bottom: 1px solid var(--rule); font-size: 14px; color: var(--ink-soft); }
-.bs-table td:last-child { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ink); }
+.bs-table td:last-child { text-align: right; font-variant-numeric: lining-nums tabular-nums; font-weight: 700; color: var(--ink); }
 .bs-role { color: var(--muted); font-size: 12px; margin-left: 7px; }
 .bs-total td { font-weight: 900; color: var(--ink); border-bottom: none; padding-top: 15px; font-size: 16px; }
 .bs-perunit { font-size: 12.5px; color: var(--muted); margin-top: 12px; }
@@ -257,18 +268,28 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
   display: flex; gap: 24px; align-items: flex-start;
   margin-top: 34px; padding: 28px 30px; background: #F2F7EF; border-left: 4px solid var(--leaf);
 }
+/* Deliberately NOT Playfair. This is a data range, not a headline number —
+   and Playfair at weight 900 gives digits uneven optical heights that read as
+   a rendering fault at this size. Inter's numerals are drawn for exactly this
+   job: even height, consistent width, no surprises. The single FOMO score stays
+   editorial serif because it IS a headline; a range is a measurement. */
 .bs-threshold-num {
-  font-family: var(--font-playfair), serif; font-weight: 900; font-size: 34px;
-  color: var(--leaf); line-height: 1; letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums; white-space: nowrap;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 800; font-size: 27px;
+  color: var(--leaf); line-height: 1.1; letter-spacing: -0.02em;
+  font-variant-numeric: lining-nums tabular-nums; white-space: nowrap;
 }
-.bs-threshold-num span { opacity: 0.45; margin: 0 2px; }
+.bs-threshold-num span { opacity: 0.4; margin: 0 3px; font-weight: 600; }
 .bs-threshold-you {
   margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(111,170,92,0.3);
   font-weight: 600; color: var(--ink);
 }
-.bs-threshold strong { font-size: 15px; display: block; margin-bottom: 7px; }
+/* Scoped to the lead line only. A blanket `.bs-threshold strong { display:block }`
+   also caught the inline <strong> numbers inside the paragraph and broke the
+   sentence into fragments stacked down the page. */
+.bs-threshold-lead { font-size: 15px; font-weight: 800; margin-bottom: 8px; }
 .bs-threshold p { font-size: 13.5px; color: var(--ink-soft); line-height: 1.6; }
+.bs-threshold p strong { color: var(--ink); font-weight: 700; white-space: nowrap; }
 @media (max-width: 760px) { .bs-threshold { flex-direction: column; gap: 12px; } }
 
 .bs-layer { display: grid; grid-template-columns: 150px 1fr; gap: 20px; padding: 15px 0; border-top: 1px solid var(--rule); }
@@ -291,7 +312,7 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 /* Cost curve */
 .cc { margin: 0; }
 .cc-svg { width: 100%; height: auto; display: block; overflow: visible; }
-.cc-axis { font-size: 10.5px; fill: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+.cc-axis { font-size: 10.5px; fill: var(--muted); font-weight: 600; font-variant-numeric: lining-nums tabular-nums; }
 .cc-floor { font-size: 10px; fill: var(--ink-soft); font-weight: 700; letter-spacing: 0.04em; }
 .cc-cross { font-size: 10px; fill: var(--leaf); font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
 .cc-you { font-size: 10px; fill: var(--ink); font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.55; }
@@ -310,7 +331,7 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 .cs-keys { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: var(--ink-soft); }
 .cs-key { display: inline-flex; align-items: center; gap: 6px; }
 .cs-key i { width: 9px; height: 9px; border-radius: 2px; display: block; }
-.cs-key strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+.cs-key strong { color: var(--ink); font-variant-numeric: lining-nums tabular-nums; }
 
 .bs-provenance {
   margin-top: 34px; padding-top: 20px; border-top: 1px solid var(--rule);
@@ -507,7 +528,7 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
   gap: 10px; align-items: center; padding: 9px 0;
   animation: hdSwap .45s ease both;
 }
-.hd-rank { font-family: var(--font-playfair), serif; font-weight: 900; font-size: 14px; color: var(--rule); font-variant-numeric: tabular-nums; }
+.hd-rank { font-family: var(--font-playfair), serif; font-weight: 900; font-size: 14px; color: var(--rule); font-variant-numeric: lining-nums tabular-nums; }
 .hd-cat { font-size: 8.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--brand); font-weight: 800; }
 .hd-name { font-family: var(--font-playfair), serif; font-weight: 800; font-size: 15.5px; margin-top: 1px; }
 .hd-bar { height: 4px; background: var(--rule); border-radius: 2px; margin-top: 7px; overflow: hidden; }
@@ -519,7 +540,7 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 .hd-score {
   font-family: var(--font-playfair), serif; font-weight: 900; font-size: 26px;
   color: var(--tone, var(--brand)); text-align: right; line-height: 1;
-  font-variant-numeric: tabular-nums; transition: color .4s ease;
+  font-variant-numeric: lining-nums tabular-nums; transition: color .4s ease;
 }
 .hd-foot {
   border-top: 1px solid var(--rule); margin-top: 6px; padding-top: 12px;
@@ -618,7 +639,7 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 .lp-proof-name { font-family: var(--font-playfair), serif; font-weight: 800; font-size: 21px; }
 .lp-proof-verdict { font-family: var(--font-playfair), serif; font-style: italic; font-size: 15.5px; margin-top: 7px; line-height: 1.45; }
 .lp-proof-who { font-size: 11.5px; color: var(--muted); margin-top: 9px; }
-.lp-proof-score { font-family: var(--font-playfair), serif; font-weight: 900; font-size: 54px; color: var(--muted); line-height: .9; margin-left: auto; font-variant-numeric: tabular-nums; }
+.lp-proof-score { font-family: var(--font-playfair), serif; font-weight: 900; font-size: 54px; color: var(--muted); line-height: .9; margin-left: auto; font-variant-numeric: lining-nums tabular-nums; }
 .lp-proof-note { color: var(--ink-soft); font-size: 15.5px; line-height: 1.6; max-width: 560px; margin: 26px auto 0; }
 
 /* ── "New" badges ──
@@ -671,7 +692,7 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 .lp-bd-row.is-on .lp-bd-cost { color: var(--leaf); }
 .lp-bd-cost small { font-size: 11px; font-weight: 700; color: var(--muted); }
 .lp-bd-foot { font-size: 12.5px; color: var(--ink-soft); padding-top: 15px; line-height: 1.5; }
-.lp-bd-foot strong { color: var(--leaf); font-variant-numeric: tabular-nums; }
+.lp-bd-foot strong { color: var(--leaf); font-variant-numeric: lining-nums tabular-nums; }
 
 @media (max-width: 860px) {
   .lp-build { grid-template-columns: 1fr; gap: 32px; }
@@ -796,7 +817,7 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 .login-step-n {
   font-family: var(--font-playfair), serif; font-weight: 900; font-size: 22px;
   color: var(--rule); line-height: 1; min-width: 32px; padding-top: 2px;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 .login-steps strong { display: block; font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
 .login-steps span { display: block; font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
@@ -810,7 +831,7 @@ body { font-family: var(--font-inter), system-ui, sans-serif; -webkit-font-smoot
 .login-sample-who { font-size: 11px; color: var(--muted); margin-top: 7px; letter-spacing: 0.04em; }
 .login-sample-score {
   font-family: var(--font-playfair), serif; font-weight: 900; font-size: 46px;
-  color: var(--muted); line-height: 0.9; margin-left: auto; font-variant-numeric: tabular-nums;
+  color: var(--muted); line-height: 0.9; margin-left: auto; font-variant-numeric: lining-nums tabular-nums;
 }
 
 /* form side */

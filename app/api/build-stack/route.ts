@@ -38,7 +38,7 @@ Return ONLY this JSON object, no prose and no markdown fences:
   "archetype_id": "<exactly one id from the list provided>",
   "confidence": "high" | "medium" | "low",
   "restated": "<one sentence restating what they're building, max 18 words>",
-  "industry_notes": ["<up to 3 constraints that this INDUSTRY imposes — compliance, data residency, latency, accuracy bar>"],
+  "industry_notes": ["<up to 3 constraints that this INDUSTRY imposes. Compliance, data residency, latency, accuracy bar>"],
   "first_risk": "<the single thing most likely to go wrong in this build, one sentence>"
 }
 

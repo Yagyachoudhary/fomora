@@ -86,7 +86,7 @@ export const CHAT_MODELS: ChatModel[] = [
     tier: "balanced",
     inPerM: 0.3,
     outPerM: 2.5,
-    note: "Consistent across every source checked — the most reliable number here."
+    note: "Consistent across every source checked. The most reliable number here."
   },
   {
     id: "gpt-5-4-nano",
@@ -103,7 +103,7 @@ export const CHAT_MODELS: ChatModel[] = [
     tier: "premium",
     inPerM: 0.75,
     outPerM: 3.75,
-    note: "Introductory rate. Doubles to $1.50/$7.50 on 1 Jan 2027 — do not build a margin on this."
+    note: "Introductory rate. Doubles to $1.50/$7.50 on 1 Jan 2027. Do not build a margin on this."
   },
   {
     id: "gpt-5-4-mini",
@@ -178,7 +178,7 @@ export const FIXED_SERVICES: FixedService[] = [
     name: "Pinecone Builder",
     role: "Vector store",
     monthly: 20,
-    note: "Only worth it past roughly 10M vectors — below that pgvector on Postgres you already pay for wins."
+    note: "Only worth it past roughly 10M vectors. Below that, pgvector on the Postgres you already pay for wins."
   },
   {
     id: "langfuse-self",

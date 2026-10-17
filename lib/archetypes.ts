@@ -63,7 +63,7 @@ export const ARCHETYPES: Archetype[] = [
       { role: "Tracing", pick: "Langfuse self-hosted", why: "Without traces you cannot tell whether the bot invented a refund policy.", freeAlt: "Langfuse", altBreaksAt: "team size, not volume" }
     ],
     gotchas: [
-      "Never let the model state stock, price or refund eligibility from memory — make every one of those a tool call against your own database.",
+      "Never let the model state stock, price or refund eligibility from memory. Make every one of those a tool call against your own database.",
       "Conversation history is what makes cost grow non-linearly. Truncate aggressively or your 6-turn estimate becomes a 20-turn bill.",
       "Prompt caching is the single biggest lever here; the system prompt and catalogue context repeat on every turn."
     ]
@@ -85,7 +85,7 @@ export const ARCHETYPES: Archetype[] = [
       { role: "Hosting", pick: "Vercel Pro", why: "Commercial use." }
     ],
     gotchas: [
-      "Citations are not optional — an uncited RAG answer is indistinguishable from a hallucination to the person reading it.",
+      "Citations are not optional. An uncited RAG answer is indistinguishable from a hallucination to the person reading it.",
       "Re-indexing cost scales with how often your documents change, not with how many you have.",
       "Measure retrieval separately from generation, or you will tune the wrong half for weeks."
     ]
@@ -93,7 +93,7 @@ export const ARCHETYPES: Archetype[] = [
   {
     id: "image-gen",
     name: "Image generation product",
-    blurb: "Generates or edits images from prompts — product shots, variations, creative assets.",
+    blurb: "Generates or edits images from prompts: product shots, variations, creative assets.",
     unit: "image",
     unitPlural: "images",
     inTokens: 800,
@@ -110,7 +110,7 @@ export const ARCHETYPES: Archetype[] = [
     gotchas: [
       "Generation is slow enough that you need a job queue, not a request-response endpoint. This shapes your whole architecture.",
       "Storage and bandwidth usually overtake generation cost before you expect them to.",
-      "Self-hosting FLUX flips you from per-image to per-GPU-hour, which only wins at sustained high volume — idle GPUs bill too."
+      "Self-hosting FLUX flips you from per-image to per-GPU-hour, which only wins at sustained high volume. Idle GPUs bill too."
     ]
   },
   {
@@ -132,7 +132,7 @@ export const ARCHETYPES: Archetype[] = [
     ],
     gotchas: [
       "The LLM is the cheap part. Speech in and out typically costs several times more per minute.",
-      "Serverless functions time out mid-call — you need a long-lived process somewhere, which breaks the all-Vercel story.",
+      "Serverless functions time out mid-call. You need a long-lived process somewhere, which breaks the all-Vercel story.",
       "Interruption handling is most of the engineering work and none of the demo."
     ]
   },
@@ -155,7 +155,7 @@ export const ARCHETYPES: Archetype[] = [
     ],
     gotchas: [
       "Batch transcription is far cheaper than streaming. Only pay for streaming if users watch it appear live.",
-      "Recording consent is a legal requirement in many jurisdictions — this is a product decision, not a settings toggle.",
+      "Recording consent is a legal requirement in many jurisdictions. This is a product decision, not a settings toggle.",
       "Diarisation (who said what) is what makes notes useful and is often priced separately."
     ]
   },
@@ -169,14 +169,14 @@ export const ARCHETYPES: Archetype[] = [
     outTokens: 3000,
     cacheableShare: 0.55,
     layers: [
-      { role: "Generation model", pick: "Balanced tier", why: "Output quality is the product here, and output tokens dominate the bill — this is the one archetype where paying more is defensible." },
+      { role: "Generation model", pick: "Balanced tier", why: "Output quality is the product here, and output tokens dominate the bill. This is the one archetype where paying more is defensible." },
       { role: "Batch API", pick: "Yes, if you can wait", why: "Halves every rate. Bulk generation is almost never latency-sensitive." },
       { role: "Review queue", pick: "Human-in-the-loop UI", why: "Publishing unreviewed generated copy is how brands end up in screenshots." },
       { role: "Storage", pick: "Supabase Postgres", why: "Version every generation; you will need to roll one back." },
       { role: "Hosting", pick: "Vercel Pro", why: "Commercial use." }
     ],
     gotchas: [
-      "Output-heavy workloads invert the usual maths — output tokens are 8–10x input, so output rate is the number that matters.",
+      "Output-heavy workloads invert the usual maths. Output tokens are 8–10x input, so output rate is the number that matters.",
       "The batch API halves cost for work nobody is waiting on. Most bulk generation qualifies.",
       "Generated copy at scale is an SEO liability if it is thin. Volume is not the goal."
     ]
@@ -192,13 +192,13 @@ export const ARCHETYPES: Archetype[] = [
     cacheableShare: 0.5,
     layers: [
       { role: "Reasoning model", pick: "Balanced or premium tier", why: "The only archetype where model quality genuinely decides whether it works. A cheap model loops and fails." },
-      { role: "Tool layer", pick: "MCP or typed function calls", why: "Agent reliability is mostly tool design — narrow, well-described tools beat clever prompts." },
+      { role: "Tool layer", pick: "MCP or typed function calls", why: "Agent reliability is mostly tool design. Narrow, well-described tools beat clever prompts." },
       { role: "State", pick: "Supabase Postgres", why: "Runs are long and fail midway. Without durable state you cannot resume." },
       { role: "Tracing", pick: "Langfuse self-hosted", why: "Non-negotiable. An untraced agent failure is unfixable.", freeAlt: "Langfuse" },
       { role: "Hosting", pick: "Vercel Pro + a worker", why: "Multi-minute runs exceed serverless timeouts." }
     ],
     gotchas: [
-      "Token use per run is wildly variable — a looping agent can cost 10x your estimate. Hard-cap steps and spend per run.",
+      "Token use per run is wildly variable. A looping agent can cost 10x your estimate. Hard-cap steps and spend per run.",
       "This is the archetype where cheap models are a false economy; a failed run costs more than the tokens you saved.",
       "Give it a dry-run mode before you let it touch anything that writes."
     ]
@@ -206,7 +206,7 @@ export const ARCHETYPES: Archetype[] = [
   {
     id: "semantic-rec",
     name: "Semantic search & recommendations",
-    blurb: "Finds and ranks items by meaning rather than keywords — products, content, people.",
+    blurb: "Finds and ranks items by meaning rather than keywords: products, content, people.",
     unit: "1,000 searches",
     unitPlural: "thousand searches",
     inTokens: 1500,
@@ -222,7 +222,7 @@ export const ARCHETYPES: Archetype[] = [
     gotchas: [
       "Hybrid search (keyword + vector) beats pure vector almost every time. Pure semantic search fails on exact SKUs and names.",
       "Re-embedding the catalogue on every change is the cost that creeps up on you, not query volume.",
-      "Cache aggressively — a small set of queries will be most of your traffic."
+      "Cache aggressively. A small set of queries will be most of your traffic."
     ]
   }
 ];
