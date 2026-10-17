@@ -3,9 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { scoreFomo } from "@/lib/scoring";
 import { fetchLaunchContent } from "@/lib/launch-fetcher";
 import { NextResponse } from "next/server";
-
-/** Marks rows created by a user analysing a URL, so the shared Radar can skip them. */
-export const USER_ANALYSIS_SOURCE = "User analysis";
+import { USER_ANALYSIS_SOURCE } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;

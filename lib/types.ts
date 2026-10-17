@@ -63,6 +63,17 @@ export type UserLaunch = {
 
 export type LaunchWithScore = Launch & { fomo_score?: number; status?: string };
 
+/**
+ * `launches.source` value for rows created by a user analysing a URL.
+ *
+ * Lives here, not in the analyze route: Next validates the exports of a
+ * route.ts and fails the build on anything that isn't a handler or a known
+ * route segment config, so a stray `export const` there breaks the deploy.
+ * The Radar filters these out — they're one person's lookup, not a crawled
+ * launch, and they share a table with everyone's feed.
+ */
+export const USER_ANALYSIS_SOURCE = "User analysis";
+
 export const ROLES = [
   // Product & business
   'Product Manager', 'Founder / CEO', 'Marketer', 'Growth / Ops',

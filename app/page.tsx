@@ -7,6 +7,7 @@ import { PersonalizeFeed } from "@/components/PersonalizeFeed";
 import { LaunchIcon } from "@/components/LaunchIcon";
 import { ScoreFeedback } from "@/components/ScoreFeedback";
 import { toneClass } from "@/lib/score-tone";
+import { USER_ANALYSIS_SOURCE } from "@/lib/types";
 import type { Launch, UserLaunch } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -82,7 +83,7 @@ export default async function RadarHomePage({
   // URL. Those rows live in the same shared table but are one person's lookup,
   // not a crawled launch — without this they'd surface in everyone's Radar.
   const real = all.filter(
-    r => r.category !== "System" && r.source !== "User analysis"
+    r => r.category !== "System" && r.source !== USER_ANALYSIS_SOURCE
   );
 
   // Decorate with the user's personalized score, fall back to base_momentum.
